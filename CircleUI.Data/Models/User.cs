@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace CircleUI.Models;
+namespace CircleUI.Data.Models;
 
 public class User : IdentityUser
 {

@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using CircleUI.Models;
+using CircleUI.Data.Models;
 
 namespace CircleUI.Controllers;
 

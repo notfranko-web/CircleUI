@@ -1,4 +1,4 @@
-namespace CircleUI.Models;
+namespace CircleUI.Data.Models;
 
 public class ErrorViewModel
 {

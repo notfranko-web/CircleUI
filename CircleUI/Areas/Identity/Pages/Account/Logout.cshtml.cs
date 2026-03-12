@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using CircleUI.Models;
+using CircleUI.Data.Models;
 
 namespace CircleUI.Areas.Identity.Pages.Account;
 

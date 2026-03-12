@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CircleUI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+347a9e6ae765ec079a388f82f7129a8ecc5b5e44")]
 [assembly: System.Reflection.AssemblyProductAttribute("CircleUI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CircleUI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
