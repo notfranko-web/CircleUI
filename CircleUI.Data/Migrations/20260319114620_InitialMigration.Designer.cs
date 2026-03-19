@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CircleUI.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260312162445_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260319114620_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
