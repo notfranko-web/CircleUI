@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\CircleUI.Core\CircleUI.Core.csproj" />
       <ProjectReference Include="..\CircleUI.Data\CircleUI.Data.csproj" />
     </ItemGroup>
 
