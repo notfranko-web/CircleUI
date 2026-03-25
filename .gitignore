@@ -1,7 +1,8 @@
 .idea
-CircleUI.Data/obj
-CircleUI/obj
-CircleUI/bin
-CircleUI.Data/bin
-CircleUI.Core/obj
-CircleUI.Core/bin
+CircleUI.Data/obj/
+CircleUI/obj/
+CircleUI/bin/
+CircleUI.Data/bin/
+CircleUI.Core/obj/
+CircleUI.Core/bin/
+
