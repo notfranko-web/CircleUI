@@ -2,6 +2,7 @@ namespace CircleUI.Core.DTOs;
 
 public class AssetDTO
 {
+    public Guid? Id { get; set; } = null;
     public string FileName { get; set; } = string.Empty;
     public string MimeType { get; set; } = "image/png";
     public long SizeBytes { get; set; }
