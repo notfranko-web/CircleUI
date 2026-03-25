@@ -1,0 +1,26 @@
+@model IEnumerable<CircleUI.Data.Models.Asset>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<a asp-action="Create" class="btn btn-primary mb-3">Create New Asset</a>
+<div>
+@foreach (var asset in Model)
+{
+    <div>
+        <ol>
+            <li>@asset.Id</li>
+            <li>@asset.FileName</li>
+            <li>@asset.MimeType</li>
+            <li>@asset.SizeBytes</li>
+            <li>@asset.StoragePath</li>
+            <li>@(asset.User?.DisplayName ?? "(no user)")</li>
+            <li>@asset.UserId</li>
+            <a asp-action="Update" asp-route-id="@asset.Id" class="btn btn-sm btn-warning">Edit</a>
+            <a asp-action="Delete" asp-route-id="@asset.Id" class="btn btn-sm btn-danger">Delete</a>
+        </ol>
+    </div>
+}
+</div>

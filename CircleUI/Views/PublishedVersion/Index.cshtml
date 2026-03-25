@@ -1,0 +1,38 @@
+@model IEnumerable<CircleUI.Data.Models.PublishedVersion>
+
+@{
+    ViewData["Title"] = "Published Versions";
+    Layout = "_Layout";
+}
+
+<h1>Published Versions</h1>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Create New Version</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Published At</th>
+            <th>Version Hash</th>
+            <th>Project Id</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var version in Model)
+        {
+            <tr>
+                <td>@version.Id</td>
+                <td>@version.PublishedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@version.VersionHash</td>
+                <td>@version.ProjectId</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@version.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Edit" asp-route-id="@version.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@version.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

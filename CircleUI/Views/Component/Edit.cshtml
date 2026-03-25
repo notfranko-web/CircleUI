@@ -1,0 +1,44 @@
+@model CircleUI.ViewModels.Component.ComponentUpdateViewModel
+
+@{
+    ViewData["Title"] = "Edit Component";
+}
+
+<h1>Edit Component</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group mb-3">
+        <label asp-for="Type" class="form-label"></label>
+        <input asp-for="Type" class="form-control" />
+        <span asp-validation-for="Type" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Content" class="form-label"></label>
+        <textarea asp-for="Content" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Layout" class="form-label"></label>
+        <textarea asp-for="Layout" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Layout" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="ParentId" class="form-label"></label>
+        <input asp-for="ParentId" class="form-control" />
+        <span asp-validation-for="ParentId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="PageId" class="form-label"></label>
+        <input asp-for="PageId" class="form-control" />
+        <span asp-validation-for="PageId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

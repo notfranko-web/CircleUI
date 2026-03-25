@@ -1,0 +1,32 @@
+@model CircleUI.ViewModels.PublishedVersion.PublishedVersionUpdateViewModel
+
+@{
+    ViewData["Title"] = "Edit Published Version";
+}
+
+<h1>Edit Published Version</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group mb-3">
+        <label asp-for="PublishedAt" class="form-label"></label>
+        <input asp-for="PublishedAt" class="form-control" type="datetime-local" />
+        <span asp-validation-for="PublishedAt" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="VersionHash" class="form-label"></label>
+        <input asp-for="VersionHash" class="form-control" />
+        <span asp-validation-for="VersionHash" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="ProjectId" class="form-label"></label>
+        <input asp-for="ProjectId" class="form-control" />
+        <span asp-validation-for="ProjectId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

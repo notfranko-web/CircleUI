@@ -1,0 +1,28 @@
+@model CircleUI.ViewModels.PublishedVersion.PublishedVersionDetailsViewModel
+
+@{
+    ViewData["Title"] = "Published Version Details";
+}
+
+<h1>Published Version Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Id</dt>
+        <dd class="col-sm-10">@Model.Id</dd>
+
+        <dt class="col-sm-2">Published At</dt>
+        <dd class="col-sm-10">@Model.PublishedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+        <dt class="col-sm-2">Version Hash</dt>
+        <dd class="col-sm-10">@Model.VersionHash</dd>
+
+        <dt class="col-sm-2">Project Id</dt>
+        <dd class="col-sm-10">@Model.ProjectId</dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
