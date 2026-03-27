@@ -1,0 +1,96 @@
+@model CircleUI.ViewModels.WebsiteProject.WebsiteProjectBuilderViewModel
+
+<h1>Build Project </h1>
+<div class="row">
+    
+    <div class="col-2 border-end">
+        <h5 class="p-2">Components</h5>
+
+        <div class="components-sidebar p-2">
+            @foreach (var component in Model.ComponentDtos)
+            {
+                <div class="component-card mb-3 p-2 border rounded">
+                    <div class="small fw-bold text-muted mb-1">
+                        @component.Type
+                    </div>
+
+                    <div class="component-preview">
+                        @Html.Raw(component.Content)
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-10 border">
+        <h2>Pages</h2>
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" id="pageTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active"
+                        id="home-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#home"
+                        type="button"
+                        role="tab">
+                    Instruction
+                </button>
+            </li>
+
+            @foreach (var page1 in Model.PageDtos)
+            {
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            id="tab-@page1.Id"
+                            data-bs-toggle="tab"
+                            data-bs-target="#pane-@page1.Id"
+                            type="button"
+                            role="tab">
+                        @page1.Title
+                    </button>
+                </li>
+            }
+        </ul>
+
+        <!-- Tab content -->
+        <div class="tab-content mt-3" id="pageTabsContent">
+            <div id="home"
+                 class="tab-pane fade show active"
+                 role="tabpanel">
+                <h3>HOME</h3>
+                <p>instructions for working.</p>
+            </div>
+
+            @foreach (var page2 in Model.PageDtos)
+            {
+                <div id="pane-@page2.Id"
+                     class="tab-pane fade"
+                     role="tabpanel">
+                    <h3>@page2.Title</h3>
+                    <div>@page2.Id</div>
+                    <div>@page2.Path</div>
+                    
+                    <div>
+                        @foreach (var section1 in page2.SectionDtos)
+                        {
+                            <div>
+                                <div>section name: @section1.Name</div>
+                                <div>Section HTMLID: @section1.HTMLId</div>
+                                <div>section cssclass: @section1.CSSClass</div>
+                            
+                                @foreach (var component2 in section1.ComponentDTOs)
+                                {
+                                    <div>ComponentId: @component2.Id</div>
+                                    <div>ComponentType: @component2.Type</div>
+                                    <div>ComponentContent: @component2.Content</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+               
+            }
+        </div>
+    </div>
+</div>
