@@ -129,6 +129,8 @@ namespace CircleUI.Data.Migrations
 
                     b.HasIndex("PageId");
 
+                    b.HasIndex("SectionId");
+
                     b.ToTable("PageSection");
                 });
 
@@ -155,6 +157,29 @@ namespace CircleUI.Data.Migrations
                     b.ToTable("PublishedVersions");
                 });
 
+            modelBuilder.Entity("CircleUI.Data.Models.Section", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CSSClass")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HTMLId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Section");
+                });
+
             modelBuilder.Entity("CircleUI.Data.Models.SectionComponent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -173,6 +198,8 @@ namespace CircleUI.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ComponentId");
+
+                    b.HasIndex("SectionId");
 
                     b.ToTable("SectionComponent");
                 });
@@ -440,6 +467,14 @@ namespace CircleUI.Data.Migrations
                         .HasForeignKey("PageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CircleUI.Data.Models.Section", "Section")
+                        .WithMany("PageSections")
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Section");
                 });
 
             modelBuilder.Entity("CircleUI.Data.Models.PublishedVersion", b =>
@@ -455,11 +490,19 @@ namespace CircleUI.Data.Migrations
 
             modelBuilder.Entity("CircleUI.Data.Models.SectionComponent", b =>
                 {
-                    b.HasOne("CircleUI.Data.Models.Component", null)
+                    b.HasOne("CircleUI.Data.Models.Component", "Component")
                         .WithMany("SectionComponents")
                         .HasForeignKey("ComponentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CircleUI.Data.Models.Section", null)
+                        .WithMany("SectionComponents")
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Component");
                 });
 
             modelBuilder.Entity("CircleUI.Data.Models.WebsiteProject", b =>
@@ -532,6 +575,13 @@ namespace CircleUI.Data.Migrations
             modelBuilder.Entity("CircleUI.Data.Models.Page", b =>
                 {
                     b.Navigation("PageSections");
+                });
+
+            modelBuilder.Entity("CircleUI.Data.Models.Section", b =>
+                {
+                    b.Navigation("PageSections");
+
+                    b.Navigation("SectionComponents");
                 });
 
             modelBuilder.Entity("CircleUI.Data.Models.User", b =>
