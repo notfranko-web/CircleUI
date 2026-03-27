@@ -15,13 +15,21 @@ public class AssetService : IAssetService
     {
         _context = context;
     }
-    public async Task<List<Asset>> GetAll()
+    public async Task<List<AssetDTO>> GetAll()
     {
-        //throw new NotImplementedException();
-        return  await _context.Assets.ToListAsync();
+        var assets = await _context.Assets.ToListAsync();
+        return assets.Select(a => new AssetDTO()
+        {
+            Id = a.Id,
+            FileName = a.FileName,
+            MimeType = a.MimeType,
+            SizeBytes = a.SizeBytes,
+            StoragePath = a.StoragePath,
+            UserId = a.UserId
+        }).ToList();
     }
 
-    public async Task<Asset> Create(AssetDTO input)
+    public async Task<AssetDTO> Create(AssetDTO input)
     {
         var asset = new Asset()
         {
@@ -33,7 +41,16 @@ public class AssetService : IAssetService
         };
         await _context.Assets.AddAsync(asset);
         await _context.SaveChangesAsync();
-        return asset;
+
+        return new AssetDTO()
+        {
+            Id = asset.Id,
+            FileName = asset.FileName,
+            MimeType = asset.MimeType,
+            SizeBytes = asset.SizeBytes,
+            StoragePath = asset.StoragePath,
+            UserId = asset.UserId
+        };
     }
     
     public async Task<AssetDTO> GetById(string id)
@@ -51,7 +68,7 @@ public class AssetService : IAssetService
         }; 
     }
     
-    public async Task<Asset> Update(AssetDTO input)
+    public async Task<AssetDTO> Update(AssetDTO input)
     {
         var asset = await _context.Assets.FirstOrDefaultAsync(a => a.Id == input.Id);
         asset.FileName = input.FileName;
@@ -60,7 +77,16 @@ public class AssetService : IAssetService
         asset.StoragePath = input.StoragePath;
         asset.UserId = input.UserId;
         await _context.SaveChangesAsync();
-        return asset;
+
+        return new AssetDTO()
+        {
+            Id = asset.Id,
+            FileName = asset.FileName,
+            MimeType = asset.MimeType,
+            SizeBytes = asset.SizeBytes,
+            StoragePath = asset.StoragePath,
+            UserId = asset.UserId
+        };
     }
     
     public async Task Delete(string id)

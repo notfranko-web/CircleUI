@@ -29,13 +29,6 @@ public class ApplicationDbContext : IdentityDbContext<User>
                     v => v)
             );
 
-        // Configure recursive component hierarchy
-        modelBuilder.Entity<Component>()
-            .HasOne(c => c.Parent)
-            .WithMany(c => c.Children)
-            .HasForeignKey(c => c.ParentId)
-            .OnDelete(DeleteBehavior.Restrict); // Prevent accidental cascade deletes
-
         // Indexes for performance
         modelBuilder.Entity<Page>()
             .HasIndex(p => new { p.ProjectId, p.Path })
