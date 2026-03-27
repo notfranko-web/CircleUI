@@ -10,10 +10,12 @@ namespace CircleUI.Controllers;
 public class WebsiteProjectController : Controller
 {
     private readonly IWebsiteProjectService _service;
+    private readonly IComponentService _componentService;
 
     public WebsiteProjectController(ApplicationDbContext context)
     {
         _service = new WebsiteProjectService(context);
+        _componentService = new ComponentService(context);
     }
     
     // GET
@@ -88,5 +90,38 @@ public class WebsiteProjectController : Controller
     {
         await _service.Delete(id);
         return RedirectToAction("Index");
+    }
+    
+    public async Task<IActionResult> Details(string id)
+    {
+        WebsiteProjectDTO websiteProject = await _service.GetById(id);
+        var components = _componentService.GetAll();
+        WebsiteProjectBuilderViewModel builder = new WebsiteProjectBuilderViewModel()
+        {
+            Name = websiteProject.Name,
+            Description = websiteProject.Description,
+            Domain = websiteProject.Domain,
+            IsPublished = websiteProject.IsPublished,
+            UserId = websiteProject.UserId,
+            
+        };
+        return View(builder);
+    }
+    
+    public async Task<IActionResult> Builder(string id)
+    {
+        WebsiteProjectDTO websiteProject = await _service.GetById(id);
+        var components = await _componentService.GetAll();
+        WebsiteProjectBuilderViewModel builder = new WebsiteProjectBuilderViewModel()
+        {
+            Name = websiteProject.Name,
+            Description = websiteProject.Description,
+            Domain = websiteProject.Domain,
+            IsPublished = websiteProject.IsPublished,
+            UserId = websiteProject.UserId,
+            PageDtos  = websiteProject.Pages,
+            ComponentDtos = components
+        };
+        return View(builder);
     }
 }
