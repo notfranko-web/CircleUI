@@ -5,4 +5,5 @@ CircleUI/bin/
 CircleUI.Data/bin/
 CircleUI.Core/obj/
 CircleUI.Core/bin/
-
+*.DotSettings.user
+global.json
