@@ -8,10 +8,5 @@ public class Component
     
     public string Layout { get; set; } = "{\"desktop\":{\"x\":0,\"y\":0,\"w\":12},\"tablet\":{\"x\":0,\"y\":0,\"w\":12},\"mobile\":{\"x\":0,\"y\":0,\"w\":12}}";
     
-    public Guid? ParentId { get; set; }
-    public Component? Parent { get; set; }
-    public ICollection<Component> Children { get; set; } = new List<Component>();
-    
-    public Guid PageId { get; set; }
-    public Page Page { get; set; } = null!;
+    public ICollection<SectionComponent> SectionComponents { get; set; } = new List<SectionComponent>();
 }

@@ -19,7 +19,19 @@ public class ComponentController : Controller
     public async Task<IActionResult> Index()
     {
         var components = await _service.GetAll();
-        return View(components);
+        var viewModels = new List<ComponentIndexViewModel>();
+        foreach (var component in components)
+        {
+            var viewModel = new ComponentIndexViewModel()
+            {
+                Id = component.Id,
+                Content = component.Content,
+                Type = component.Type,
+                
+            };
+            viewModels.Add(viewModel);
+        }
+        return View(viewModels);
     }
     // CREATE
     
