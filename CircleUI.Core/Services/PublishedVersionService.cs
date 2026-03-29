@@ -15,12 +15,19 @@ public class PublishedVersionService : IPublishedVersionService
         _context = context;
     }
     
-    public async Task<List<PublishedVersion>> GetAll()
+    public async Task<List<PublishedVersionDTO>> GetAll()
     {
-        return await _context.PublishedVersions.ToListAsync();
+        var publishedVersions = await _context.PublishedVersions.ToListAsync();
+        return publishedVersions.Select(pv => new PublishedVersionDTO()
+        {
+            Id = pv.Id,
+            PublishedAt = pv.PublishedAt,
+            VersionHash = pv.VersionHash,
+            ProjectId = pv.ProjectId
+        }).ToList();
     }
 
-    public async Task<PublishedVersion> Create(PublishedVersionDTO input)
+    public async Task<PublishedVersionDTO> Create(PublishedVersionDTO input)
     {
         var publishedVersion = new PublishedVersion()
         {
@@ -30,30 +37,44 @@ public class PublishedVersionService : IPublishedVersionService
         };
         await _context.PublishedVersions.AddAsync(publishedVersion);
         await _context.SaveChangesAsync();
-        return publishedVersion;
+
+        return new PublishedVersionDTO()
+        {
+            Id = publishedVersion.Id,
+            PublishedAt = publishedVersion.PublishedAt,
+            VersionHash = publishedVersion.VersionHash,
+            ProjectId = publishedVersion.ProjectId
+        };
     }
     
     public async Task<PublishedVersionDTO> GetById(string id)
     {
         Guid guidId = new Guid(id);
         var publishedVersion = await _context.PublishedVersions.FirstOrDefaultAsync(p => p.Id == guidId);
-        
+
         return new PublishedVersionDTO()
         {
             PublishedAt = publishedVersion.PublishedAt,
             VersionHash = publishedVersion.VersionHash,
             ProjectId = publishedVersion.ProjectId
-        }; 
+        };
     }
-    
-    public async Task<PublishedVersion> Update(PublishedVersionDTO input)
+
+    public async Task<PublishedVersionDTO> Update(PublishedVersionDTO input)
     {
         var publishedVersion = await _context.PublishedVersions.FirstOrDefaultAsync(p => p.Id == input.Id);
         publishedVersion.PublishedAt = input.PublishedAt;
         publishedVersion.VersionHash = input.VersionHash;
         publishedVersion.ProjectId = input.ProjectId;
         await _context.SaveChangesAsync();
-        return publishedVersion;
+
+        return new PublishedVersionDTO()
+        {
+            Id = publishedVersion.Id,
+            PublishedAt = publishedVersion.PublishedAt,
+            VersionHash = publishedVersion.VersionHash,
+            ProjectId = publishedVersion.ProjectId
+        };
     }
     
     public async Task Delete(string id)
