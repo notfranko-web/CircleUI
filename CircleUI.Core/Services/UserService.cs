@@ -15,12 +15,19 @@ public class UserService : IUserService
         _context = context;
     }
     
-    public async Task<List<User>> GetAll()
+    public async Task<List<UserDTO>> GetAll()
     {
-        return await _context.Users.ToListAsync();
+        var users = await _context.Users.ToListAsync();
+        return users.Select(u => new UserDTO()
+        {
+            Id = u.Id,
+            DisplayName = u.DisplayName,
+            UserName = u.UserName,
+            Email = u.Email
+        }).ToList();
     }
 
-    public async Task<User> Create(UserDTO input)
+    public async Task<UserDTO> Create(UserDTO input)
     {
         var user = new User()
         {
@@ -30,29 +37,44 @@ public class UserService : IUserService
         };
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
-        return user;
+
+        return new UserDTO()
+        {
+            Id = user.Id,
+            DisplayName = user.DisplayName,
+            UserName = user.UserName,
+            Email = user.Email
+        };
     }
     
     public async Task<UserDTO> GetById(string id)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-        
+
         return new UserDTO()
         {
+            Id = user.Id,
             DisplayName = user.DisplayName,
             UserName = user.UserName,
             Email = user.Email
-        }; 
+        };
     }
-    
-    public async Task<User> Update(UserDTO input)
+
+    public async Task<UserDTO> Update(UserDTO input)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == input.Id);
         user.DisplayName = input.DisplayName;
         user.UserName = input.UserName;
         user.Email = input.Email;
         await _context.SaveChangesAsync();
-        return user;
+
+        return new UserDTO()
+        {
+            Id = user.Id,
+            DisplayName = user.DisplayName,
+            UserName = user.UserName,
+            Email = user.Email
+        };
     }
     
     public async Task Delete(string id)
