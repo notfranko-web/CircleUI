@@ -1,4 +1,4 @@
-@model IEnumerable<CircleUI.Data.Models.Component>
+@model IEnumerable<CircleUI.ViewModels.Component.ComponentIndexViewModel>
 
 @{
     ViewData["Title"] = "Components";
@@ -15,8 +15,6 @@
             <th>Id</th>
             <th>Type</th>
             <th>Content</th>
-            <th>Parent Id</th>
-            <th>Page Id</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -27,8 +25,6 @@
                 <td>@component.Id</td>
                 <td>@component.Type</td>
                 <td>@component.Content</td>
-                <td>@component.ParentId</td>
-                <td>@component.PageId</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@component.Id" class="btn btn-sm btn-info">Details</a>
                     <a asp-action="Edit" asp-route-id="@component.Id" class="btn btn-sm btn-warning">Edit</a>

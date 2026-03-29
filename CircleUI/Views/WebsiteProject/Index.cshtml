@@ -1,4 +1,4 @@
-@model IEnumerable<CircleUI.Data.Models.WebsiteProject>
+@model IEnumerable<CircleUI.Core.DTOs.WebsiteProjectDTO>
 
 @{
     ViewData["Title"] = "Website Projects";
@@ -30,6 +30,7 @@
                 <td>@(project.IsPublished ? "Yes" : "No")</td>
                 <td>@project.UserId</td>
                 <td>
+                    <a asp-action="Builder" asp-route-id="@project.Id" class="btn btn-sm btn-success">Builder</a>
                     <a asp-action="Details" asp-route-id="@project.Id" class="btn btn-sm btn-info">Details</a>
                     <a asp-action="Edit" asp-route-id="@project.Id" class="btn btn-sm btn-warning">Edit</a>
                     <a asp-action="Delete" asp-route-id="@project.Id" class="btn btn-sm btn-danger">Delete</a>
