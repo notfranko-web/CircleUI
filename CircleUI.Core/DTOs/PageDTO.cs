@@ -9,4 +9,5 @@ public class PageDTO
     public string MetaDescription { get; set; } = string.Empty;
     public string MetaKeywords { get; set; } = string.Empty;
     public Guid ProjectId { get; set; }
+    public List<SectionDTO> SectionDtos = new List<SectionDTO>();
 }

@@ -14,12 +14,21 @@ public class PageService : IPageService
         _context = context;
     }
 
-    public async Task<List<Page>> GetAll()
+    public async Task<List<PageDTO>> GetAll()
     {
-        return await _context.Pages.ToListAsync();
+        var pages = await _context.Pages.ToListAsync();
+        return pages.Select(p => new PageDTO()
+        {
+            Id = p.Id,
+            Title = p.Title,
+            Path = p.Path,
+            MetaDescription = p.MetaDescription,
+            MetaKeywords = p.MetaKeywords,
+            ProjectId = p.ProjectId
+        }).ToList();
     }
 
-    public async Task<Page> Create(PageDTO pages)
+    public async Task<PageDTO> Create(PageDTO pages)
     {
         var page = new Page()
         {
@@ -32,7 +41,16 @@ public class PageService : IPageService
         };
         await _context.Pages.AddAsync(page);
         await _context.SaveChangesAsync();
-        return page;
+
+        return new PageDTO()
+        {
+            Id = page.Id,
+            Title = page.Title,
+            Path = page.Path,
+            MetaDescription = page.MetaDescription,
+            MetaKeywords = page.MetaKeywords,
+            ProjectId = page.ProjectId
+        };
     }
     
     public async Task<PageDTO> GetById(string id)
@@ -41,6 +59,7 @@ public class PageService : IPageService
         var page = await _context.Pages.FirstOrDefaultAsync(p => p.Id == guidId);
         return new PageDTO()
         {
+            Id = page.Id,
             Title = page.Title,
             Path = page.Path,
             MetaDescription = page.MetaDescription,
@@ -49,7 +68,7 @@ public class PageService : IPageService
         };
     }
 
-    public async Task<Page> Update(PageDTO input)
+    public async Task<PageDTO> Update(PageDTO input)
     {
         var page = await _context.Pages.FirstOrDefaultAsync(p => p.Id == input.Id);
         page.Title = input.Title;
@@ -58,7 +77,16 @@ public class PageService : IPageService
         page.MetaKeywords = input.MetaKeywords;
         page.ProjectId = input.ProjectId;
         await _context.SaveChangesAsync();
-        return page;
+
+        return new PageDTO()
+        {
+            Id = page.Id,
+            Title = page.Title,
+            Path = page.Path,
+            MetaDescription = page.MetaDescription,
+            MetaKeywords = page.MetaKeywords,
+            ProjectId = page.ProjectId
+        };
     }
     
     public async Task Delete(string id)
