@@ -3,10 +3,12 @@ using CircleUI.Core.Interfaces;
 using CircleUI.Core.Services;
 using CircleUI.Data;
 using CircleUI.ViewModels.Component;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CircleUI.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class ComponentController : Controller
 {
     private readonly IComponentService _service;

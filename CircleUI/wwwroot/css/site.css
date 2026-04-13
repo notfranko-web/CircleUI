@@ -309,6 +309,64 @@ dl.row dd {
   text-decoration: none;
 }
 
+/* ----- Admin ----- */
+.admin-nav-link {
+  color: #fbbf24 !important;
+  font-weight: 600;
+}
+
+.admin-nav-link:hover {
+  color: #f59e0b !important;
+  background-color: rgba(251,191,36,.12) !important;
+}
+
+.admin-stat-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.admin-stat-label {
+  font-size: .8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--color-muted);
+  margin-top: .35rem;
+}
+
+.badge-admin {
+  display: inline-block;
+  padding: .2rem .55rem;
+  font-size: .72rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.badge-user {
+  display: inline-block;
+  padding: .2rem .55rem;
+  font-size: .72rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  background-color: #f1f5f9;
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+}
+
 /* ----- Misc ----- */
 .border-bottom { border-bottom: 1px solid var(--color-border) !important; }
 

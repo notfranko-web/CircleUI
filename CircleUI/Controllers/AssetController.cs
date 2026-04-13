@@ -5,18 +5,23 @@ using CircleUI.Data;
 using CircleUI.Data.Models;
 using CircleUI.ViewModels;
 using CircleUI.ViewModels.Asset;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient.Diagnostics;
 
 namespace CircleUI.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class AssetController : Controller
 {
     private readonly IAssetService _service;
+    private readonly UserManager<User> _userManager;
 
-    public AssetController(ApplicationDbContext context)
+    public AssetController(ApplicationDbContext context, UserManager<User> userManager)
     {
         _service = new AssetService(context);
+        _userManager = userManager;
     }
     
     // GET
@@ -47,8 +52,8 @@ public class AssetController : Controller
             MimeType = input.MimeType,
             SizeBytes = input.SizeBytes,
             StoragePath = input.StoragePath,
-            UserId = input.UserId
-        }; 
+            UserId = _userManager.GetUserId(User)!
+        };
         await _service.Create(asset);
         return RedirectToAction("Index");
     }

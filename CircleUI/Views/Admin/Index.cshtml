@@ -1,0 +1,91 @@
+@using CircleUI.Data.Models
+@{
+    ViewData["Title"] = "Admin Panel";
+    var users = (List<User>)ViewBag.Users;
+    var userRoles = (Dictionary<string, bool>)ViewBag.UserRoles;
+}
+
+<h1>Admin Panel</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-4">
+        <div class="admin-stat-card">
+            <div class="admin-stat-value">@ViewBag.UserCount</div>
+            <div class="admin-stat-label">Users</div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="admin-stat-card">
+            <div class="admin-stat-value">@ViewBag.ComponentCount</div>
+            <div class="admin-stat-label">Components</div>
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="admin-stat-card">
+            <div class="admin-stat-value">@ViewBag.AssetCount</div>
+            <div class="admin-stat-label">Assets</div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex gap-2 mb-4">
+    <a asp-controller="Component" asp-action="Index" class="btn btn-primary">Manage Components</a>
+    <a asp-controller="Asset" asp-action="Index" class="btn btn-primary">Manage Assets</a>
+    <a asp-controller="Component" asp-action="Create" class="btn btn-secondary">New Component</a>
+    <a asp-controller="Asset" asp-action="Create" class="btn btn-secondary">New Asset</a>
+</div>
+
+<h2>User Management</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in users)
+        {
+            var isAdmin = userRoles[user.Id];
+            <tr>
+                <td>@user.DisplayName</td>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>
+                    @if (isAdmin)
+                    {
+                        <span class="badge-admin">Admin</span>
+                    }
+                    else
+                    {
+                        <span class="badge-user">User</span>
+                    }
+                </td>
+                <td>
+                    @if (!isAdmin)
+                    {
+                        <form asp-action="MakeAdmin" method="post" style="display:inline">
+                            <input type="hidden" name="userId" value="@user.Id"/>
+                            <button type="submit" class="btn btn-sm btn-success">Make Admin</button>
+                        </form>
+                    }
+                    else if (user.Email != "admin@circleui.com")
+                    {
+                        <form asp-action="RemoveAdmin" method="post" style="display:inline">
+                            <input type="hidden" name="userId" value="@user.Id"/>
+                            <button type="submit" class="btn btn-sm btn-danger">Remove Admin</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted" style="font-size:.8rem">Protected</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
