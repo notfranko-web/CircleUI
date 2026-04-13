@@ -50,6 +50,12 @@
                     </button>
                 </li>
             }
+            <li class="nav-item" role="presentation">
+                <form asp-controller="Page" asp-action="CreateForBuilder" method="post" style="display:inline">
+                    <input type="hidden" name="projectId" value="@Model.Id" />
+                    <button type="submit" class="nav-link add-page-btn" title="Add page">+ Add Page</button>
+                </form>
+            </li>
         </ul>
 
         <!-- Tab content -->

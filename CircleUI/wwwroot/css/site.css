@@ -275,6 +275,23 @@ dl.row dd {
   background: linear-gradient(to bottom, transparent, var(--color-surface));
 }
 
+/* ----- Builder: add page button ----- */
+.add-page-btn {
+  color: var(--color-primary) !important;
+  font-weight: 600;
+  border: 1.5px dashed var(--color-primary) !important;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+  background: transparent;
+  padding: .38rem .75rem;
+  font-size: .82rem;
+  transition: background .15s;
+}
+
+.add-page-btn:hover {
+  background: rgba(37,99,235,.07) !important;
+  text-decoration: none;
+}
+
 /* ----- Bootstrap nav tabs (Builder) ----- */
 .nav-tabs .nav-link {
   font-size: .82rem;

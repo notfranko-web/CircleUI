@@ -51,6 +51,20 @@ public class PageController : Controller
         return RedirectToAction("Index");
     }
     
+    // CREATE FROM BUILDER
+    [HttpPost]
+    public async Task<IActionResult> CreateForBuilder(Guid projectId)
+    {
+        var page = new PageDTO()
+        {
+            Title = "New Page",
+            Path = $"/page-{Guid.NewGuid():N}",
+            ProjectId = projectId
+        };
+        await _service.Create(page);
+        return RedirectToAction("Builder", "WebsiteProject", new { id = projectId });
+    }
+
     // UPDATE
     public async Task<IActionResult> Update(string id)
     {
