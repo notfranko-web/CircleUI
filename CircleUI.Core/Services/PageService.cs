@@ -40,7 +40,14 @@ public class PageService : IPageService
 
         };
         await _context.Pages.AddAsync(page);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            throw new InvalidOperationException($"A page named \"{pages.Title}\" already exists in this project.");
+        }
 
         return new PageDTO()
         {

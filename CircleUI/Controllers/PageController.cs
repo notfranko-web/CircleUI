@@ -53,15 +53,22 @@ public class PageController : Controller
     
     // CREATE FROM BUILDER
     [HttpPost]
-    public async Task<IActionResult> CreateForBuilder(Guid projectId)
+    public async Task<IActionResult> CreateForBuilder(Guid projectId, string title)
     {
         var page = new PageDTO()
         {
-            Title = "New Page",
-            Path = $"/page-{Guid.NewGuid():N}",
+            Title = title,
+            Path = "/" + Uri.EscapeDataString(title),
             ProjectId = projectId
         };
-        await _service.Create(page);
+        try
+        {
+            await _service.Create(page);
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["PageError"] = ex.Message;
+        }
         return RedirectToAction("Builder", "WebsiteProject", new { id = projectId });
     }
 
