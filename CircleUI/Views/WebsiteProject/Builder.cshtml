@@ -179,8 +179,6 @@
                                                     <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
                                                 </div>
                                                 <div class="component-editable"
-                                                     contenteditable="true"
-                                                     spellcheck="false"
                                                      data-component-id="@component2.Id">
                                                     @Html.Raw(component2.Content)
                                                 </div>
@@ -240,8 +238,8 @@
         background-color: #e9f0ff !important;
     }
     .border-dashed { border-style: dashed !important; }
-    .component-editable:focus { outline: 2px solid #0d6efd; border-radius: 2px; }
-    .component-editable:hover { outline: 1px dashed #adb5bd; border-radius: 2px; }
+    [data-text-editable]:focus { outline: 2px solid #0d6efd; border-radius: 2px; }
+    [data-text-editable]:hover { outline: 1px dashed #adb5bd; border-radius: 2px; cursor: text; }
     .nav-link:not(.active) ~ .page-delete-form { display: none !important; }
 </style>
 
@@ -309,34 +307,45 @@
             removeBtn.textContent = '×';
             header.appendChild(removeBtn);
 
-            const editableDiv = document.createElement('div');
-            editableDiv.className = 'component-editable';
-            editableDiv.contentEditable = 'true';
-            editableDiv.spellcheck = false;
-            editableDiv.dataset.componentId = draggedComponentId;
-            editableDiv.innerHTML = data.content;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'component-editable';
+            contentDiv.dataset.componentId = draggedComponentId;
+            contentDiv.innerHTML = data.content;
 
             el.appendChild(header);
-            el.appendChild(editableDiv);
+            el.appendChild(contentDiv);
             container.appendChild(el);
-            attachSaveHandler(editableDiv);
+            activateComponentEditing(contentDiv);
             attachRemoveHandler(removeBtn);
         });
     });
 
-    function attachSaveHandler(el) {
-        el.addEventListener('blur', async () => {
-            const componentId = el.dataset.componentId;
-            const content = el.innerHTML;
-            await fetch('/Section/UpdateComponentContent', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `componentId=${componentId}&content=${encodeURIComponent(content)}`
+    // Walk only direct text-node parents inside a component and make them editable.
+    // This preserves structural elements (button, a, h3, etc.) — only their text is editable.
+    function activateComponentEditing(containerEl) {
+        const componentId = containerEl.dataset.componentId;
+        const walker = document.createTreeWalker(containerEl, NodeFilter.SHOW_TEXT);
+        const seen = new Set();
+        let node;
+        while ((node = walker.nextNode())) {
+            if (!node.textContent.trim()) continue;
+            const parent = node.parentElement;
+            if (!parent || parent === containerEl || seen.has(parent)) continue;
+            seen.add(parent);
+            parent.contentEditable = 'true';
+            parent.spellcheck = false;
+            parent.setAttribute('data-text-editable', '');
+            parent.addEventListener('blur', async () => {
+                await fetch('/Section/UpdateComponentContent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `componentId=${encodeURIComponent(componentId)}&content=${encodeURIComponent(containerEl.innerHTML)}`
+                });
             });
-        });
+        }
     }
 
-    async function attachRemoveHandler(btn) {
+    function attachRemoveHandler(btn) {
         btn.addEventListener('click', async () => {
             const instance = btn.closest('.component-instance');
             const scId = instance.dataset.scId;
@@ -346,8 +355,8 @@
                 body: `sectionComponentId=${scId}`
             });
             if (!res.ok) return;
-            const data = await res.json();
-            if (data.success) {
+            const json = await res.json();
+            if (json.success) {
                 const container = instance.closest('.section-components');
                 instance.remove();
                 if (!container.querySelector('.component-instance')) {
@@ -357,6 +366,6 @@
         });
     }
 
-    document.querySelectorAll('.component-editable').forEach(attachSaveHandler);
+    document.querySelectorAll('.component-editable').forEach(activateComponentEditing);
     document.querySelectorAll('.remove-component-btn').forEach(attachRemoveHandler);
 </script>
