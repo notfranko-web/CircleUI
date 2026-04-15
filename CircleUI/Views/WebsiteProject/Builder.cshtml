@@ -309,7 +309,7 @@
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'component-editable';
-            contentDiv.dataset.componentId = draggedComponentId;
+            contentDiv.dataset.componentId = data.componentId;
             contentDiv.innerHTML = data.content;
 
             el.appendChild(header);
@@ -319,10 +319,14 @@
             attachRemoveHandler(removeBtn);
         });
     });
-
-    // Walk only direct text-node parents inside a component and make them editable.
-    // This preserves structural elements (button, a, h3, etc.) — only their text is editable.
+    
     function activateComponentEditing(containerEl) {
+        containerEl.querySelectorAll('[data-text-editable]').forEach(el => {
+            el.removeAttribute('contenteditable');
+            el.removeAttribute('spellcheck');
+            el.removeAttribute('data-text-editable');
+        });
+
         const componentId = containerEl.dataset.componentId;
         const walker = document.createTreeWalker(containerEl, NodeFilter.SHOW_TEXT);
         const seen = new Set();
@@ -336,10 +340,16 @@
             parent.spellcheck = false;
             parent.setAttribute('data-text-editable', '');
             parent.addEventListener('blur', async () => {
+                const clone = containerEl.cloneNode(true);
+                clone.querySelectorAll('[data-text-editable]').forEach(el => {
+                    el.removeAttribute('contenteditable');
+                    el.removeAttribute('spellcheck');
+                    el.removeAttribute('data-text-editable');
+                });
                 await fetch('/Section/UpdateComponentContent', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `componentId=${encodeURIComponent(componentId)}&content=${encodeURIComponent(containerEl.innerHTML)}`
+                    body: `componentId=${encodeURIComponent(componentId)}&content=${encodeURIComponent(clone.innerHTML)}`
                 });
             });
         }

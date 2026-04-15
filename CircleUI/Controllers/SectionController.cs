@@ -38,17 +38,27 @@ public class SectionController : Controller
     public async Task<IActionResult> AddComponent(Guid sectionId, Guid componentId)
     {
         var order = await _context.SectionComponents.CountAsync(sc => sc.SectionId == sectionId);
+
+        var template = await _context.Components.FindAsync(componentId);
+        var copy = new Component
+        {
+            Type = template!.Type,
+            Category = template.Category,
+            Content = template.Content,
+            Layout = template.Layout
+        };
+        _context.Components.Add(copy);
+
         var sc = new SectionComponent
         {
             SectionId = sectionId,
-            ComponentId = componentId,
+            ComponentId = copy.Id,
             Order = order
         };
         _context.SectionComponents.Add(sc);
         await _context.SaveChangesAsync();
 
-        var component = await _context.Components.FindAsync(componentId);
-        return Json(new { success = true, sectionComponentId = sc.Id, type = component!.Type, content = component.Content });
+        return Json(new { success = true, sectionComponentId = sc.Id, componentId = copy.Id, type = copy.Type, content = copy.Content });
     }
 
     [HttpPost]
