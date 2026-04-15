@@ -83,6 +83,9 @@ namespace CircleUI.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("MetaDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -131,7 +134,7 @@ namespace CircleUI.Data.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("PageSection");
+                    b.ToTable("PageSections");
                 });
 
             modelBuilder.Entity("CircleUI.Data.Models.PublishedVersion", b =>
@@ -177,7 +180,7 @@ namespace CircleUI.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Section");
+                    b.ToTable("Sections");
                 });
 
             modelBuilder.Entity("CircleUI.Data.Models.SectionComponent", b =>
@@ -201,7 +204,7 @@ namespace CircleUI.Data.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("SectionComponent");
+                    b.ToTable("SectionComponents");
                 });
 
             modelBuilder.Entity("CircleUI.Data.Models.User", b =>

@@ -10,6 +10,9 @@ public class ApplicationDbContext : IdentityDbContext<User>
 
     public DbSet<WebsiteProject> WebsiteProjects { get; set; } = null!;
     public DbSet<Page> Pages { get; set; } = null!;
+    public DbSet<Section> Sections { get; set; } = null!;
+    public DbSet<SectionComponent> SectionComponents { get; set; } = null!;
+    public DbSet<PageSection> PageSections { get; set; } = null!;
     public DbSet<Component> Components { get; set; } = null!;
     public DbSet<Asset> Assets { get; set; } = null!;
     public DbSet<PublishedVersion> PublishedVersions { get; set; } = null!;
