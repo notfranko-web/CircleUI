@@ -158,8 +158,13 @@
                                         @foreach (var component2 in section1.ComponentDTOs)
                                         {
                                             <div class="border rounded p-2 bg-white small">
-                                                <span class="badge bg-secondary me-1">@component2.Type</span>
-                                                @component2.Content
+                                                <span class="badge bg-secondary mb-1 d-block">@component2.Type</span>
+                                                <div class="component-editable"
+                                                     contenteditable="true"
+                                                     spellcheck="false"
+                                                     data-component-id="@component2.Id">
+                                                    @Html.Raw(component2.Content)
+                                                </div>
                                             </div>
                                         }
                                     }
@@ -216,6 +221,8 @@
         background-color: #e9f0ff !important;
     }
     .border-dashed { border-style: dashed !important; }
+    .component-editable:focus { outline: 2px solid #0d6efd; border-radius: 2px; }
+    .component-editable:hover { outline: 1px dashed #adb5bd; border-radius: 2px; }
 </style>
 
 <script>
@@ -270,8 +277,30 @@
 
             const el = document.createElement('div');
             el.className = 'border rounded p-2 bg-white small';
-            el.innerHTML = `<span class="badge bg-secondary me-1">${data.type}</span>${data.content}`;
+            const editableDiv = document.createElement('div');
+            editableDiv.className = 'component-editable';
+            editableDiv.contentEditable = 'true';
+            editableDiv.spellcheck = false;
+            editableDiv.dataset.componentId = draggedComponentId;
+            editableDiv.innerHTML = data.content;
+            el.innerHTML = `<span class="badge bg-secondary mb-1 d-block">${data.type}</span>`;
+            el.appendChild(editableDiv);
             container.appendChild(el);
+            attachSaveHandler(editableDiv);
         });
     });
+
+    function attachSaveHandler(el) {
+        el.addEventListener('blur', async () => {
+            const componentId = el.dataset.componentId;
+            const content = el.innerHTML;
+            await fetch('/Section/UpdateComponentContent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `componentId=${componentId}&content=${encodeURIComponent(content)}`
+            });
+        });
+    }
+
+    document.querySelectorAll('.component-editable').forEach(attachSaveHandler);
 </script>

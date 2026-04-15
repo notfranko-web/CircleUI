@@ -15,6 +15,16 @@ public class SectionController : Controller
     }
 
     [HttpPost]
+    public async Task<IActionResult> UpdateComponentContent(Guid componentId, string content)
+    {
+        var component = await _context.Components.FindAsync(componentId);
+        if (component is null) return NotFound();
+        component.Content = content;
+        await _context.SaveChangesAsync();
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
     public async Task<IActionResult> AddComponent(Guid sectionId, Guid componentId)
     {
         var order = await _context.SectionComponents.CountAsync(sc => sc.SectionId == sectionId);
