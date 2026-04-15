@@ -25,19 +25,41 @@ public class SectionController : Controller
     }
 
     [HttpPost]
+    public async Task<IActionResult> RemoveComponent(Guid sectionComponentId)
+    {
+        var sc = await _context.SectionComponents.FindAsync(sectionComponentId);
+        if (sc is not null)
+            _context.SectionComponents.Remove(sc);
+        await _context.SaveChangesAsync();
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
     public async Task<IActionResult> AddComponent(Guid sectionId, Guid componentId)
     {
         var order = await _context.SectionComponents.CountAsync(sc => sc.SectionId == sectionId);
-        _context.SectionComponents.Add(new SectionComponent
+        var sc = new SectionComponent
         {
             SectionId = sectionId,
             ComponentId = componentId,
             Order = order
-        });
+        };
+        _context.SectionComponents.Add(sc);
         await _context.SaveChangesAsync();
 
         var component = await _context.Components.FindAsync(componentId);
-        return Json(new { success = true, type = component!.Type, content = component.Content });
+        return Json(new { success = true, sectionComponentId = sc.Id, type = component!.Type, content = component.Content });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> RemoveFromPage(Guid sectionId, Guid pageId, Guid projectId)
+    {
+        var pageSection = await _context.PageSections
+            .FirstOrDefaultAsync(ps => ps.SectionId == sectionId && ps.PageId == pageId);
+        if (pageSection is not null)
+            _context.PageSections.Remove(pageSection);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("Builder", "WebsiteProject", new { id = projectId, activeTab = $"pane-{pageId}" });
     }
 
     [HttpPost]

@@ -70,7 +70,7 @@
 
             @foreach (var page1 in Model.PageDtos)
             {
-                <li class="nav-item" role="presentation">
+                <li class="nav-item d-flex align-items-center" role="presentation">
                     <button class="nav-link"
                             id="tab-@page1.Id"
                             data-bs-toggle="tab"
@@ -79,6 +79,12 @@
                             role="tab">
                         @page1.Title
                     </button>
+                    <form asp-controller="Page" asp-action="DeleteFromBuilder" method="post" class="page-delete-form d-inline">
+                        <input type="hidden" name="pageId" value="@page1.Id" />
+                        <input type="hidden" name="projectId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-link text-danger p-0 ms-1" title="Remove page"
+                                onclick="return confirm('Delete page \'@page1.Title\'?')">&times;</button>
+                    </form>
                 </li>
             }
             <li class="nav-item" role="presentation">
@@ -146,7 +152,16 @@
                                  data-section-id="@section1.Id">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="fw-semibold">@section1.Name</span>
-                                    <span class="text-muted small font-monospace">@section1.HTMLId</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted small font-monospace">@section1.HTMLId</span>
+                                        <form asp-controller="Section" asp-action="RemoveFromPage" method="post" class="d-inline">
+                                            <input type="hidden" name="sectionId" value="@section1.Id" />
+                                            <input type="hidden" name="pageId" value="@page2.Id" />
+                                            <input type="hidden" name="projectId" value="@Model.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1" title="Remove section"
+                                                    onclick="return confirm('Remove section \'@section1.Name\'?')">&times;</button>
+                                        </form>
+                                    </div>
                                 </div>
                                 @if (!string.IsNullOrEmpty(section1.CSSClass))
                                 {
@@ -157,8 +172,12 @@
                                     {
                                         @foreach (var component2 in section1.ComponentDTOs)
                                         {
-                                            <div class="border rounded p-2 bg-white small">
-                                                <span class="badge bg-secondary mb-1 d-block">@component2.Type</span>
+                                            <div class="border rounded p-2 bg-white small component-instance"
+                                                 data-sc-id="@component2.SectionComponentId">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="badge bg-secondary">@component2.Type</span>
+                                                    <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                                </div>
                                                 <div class="component-editable"
                                                      contenteditable="true"
                                                      spellcheck="false"
@@ -223,6 +242,7 @@
     .border-dashed { border-style: dashed !important; }
     .component-editable:focus { outline: 2px solid #0d6efd; border-radius: 2px; }
     .component-editable:hover { outline: 1px dashed #adb5bd; border-radius: 2px; }
+    .nav-link:not(.active) ~ .page-delete-form { display: none !important; }
 </style>
 
 <script>
@@ -276,17 +296,31 @@
             if (placeholder) placeholder.remove();
 
             const el = document.createElement('div');
-            el.className = 'border rounded p-2 bg-white small';
+            el.className = 'border rounded p-2 bg-white small component-instance';
+            el.dataset.scId = data.sectionComponentId;
+
+            const header = document.createElement('div');
+            header.className = 'd-flex justify-content-between align-items-center mb-1';
+            header.innerHTML = `<span class="badge bg-secondary">${data.type}</span>`;
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-link text-danger p-0 remove-component-btn';
+            removeBtn.title = 'Remove component';
+            removeBtn.textContent = '×';
+            header.appendChild(removeBtn);
+
             const editableDiv = document.createElement('div');
             editableDiv.className = 'component-editable';
             editableDiv.contentEditable = 'true';
             editableDiv.spellcheck = false;
             editableDiv.dataset.componentId = draggedComponentId;
             editableDiv.innerHTML = data.content;
-            el.innerHTML = `<span class="badge bg-secondary mb-1 d-block">${data.type}</span>`;
+
+            el.appendChild(header);
             el.appendChild(editableDiv);
             container.appendChild(el);
             attachSaveHandler(editableDiv);
+            attachRemoveHandler(removeBtn);
         });
     });
 
@@ -302,5 +336,27 @@
         });
     }
 
+    async function attachRemoveHandler(btn) {
+        btn.addEventListener('click', async () => {
+            const instance = btn.closest('.component-instance');
+            const scId = instance.dataset.scId;
+            const res = await fetch('/Section/RemoveComponent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `sectionComponentId=${scId}`
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data.success) {
+                const container = instance.closest('.section-components');
+                instance.remove();
+                if (!container.querySelector('.component-instance')) {
+                    container.innerHTML = '<div class="drop-placeholder text-muted small fst-italic p-2 text-center border border-dashed rounded">Drop a component here</div>';
+                }
+            }
+        });
+    }
+
     document.querySelectorAll('.component-editable').forEach(attachSaveHandler);
+    document.querySelectorAll('.remove-component-btn').forEach(attachRemoveHandler);
 </script>

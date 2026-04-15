@@ -51,6 +51,14 @@ public class PageController : Controller
         return RedirectToAction("Index");
     }
     
+    // DELETE FROM BUILDER
+    [HttpPost]
+    public async Task<IActionResult> DeleteFromBuilder(Guid pageId, Guid projectId)
+    {
+        await _service.Delete(pageId.ToString());
+        return RedirectToAction("Builder", "WebsiteProject", new { id = projectId });
+    }
+
     // CREATE FROM BUILDER
     [HttpPost]
     public async Task<IActionResult> CreateForBuilder(Guid projectId, string title)

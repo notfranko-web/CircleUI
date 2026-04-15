@@ -103,6 +103,7 @@ public class WebsiteProjectService : IWebsiteProjectService
                     var componentDto = new ComponentDTO()
                     {
                         Id = component.ComponentId,
+                        SectionComponentId = component.Id,
                         Type = component.Component.Type,
                         Content = component.Component.Content,
                         Layout = component.Component.Layout,

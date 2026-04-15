@@ -3,6 +3,7 @@ namespace CircleUI.Core.DTOs;
 public class ComponentDTO
 {
     public Guid? Id { get; set; }
+    public Guid? SectionComponentId { get; set; }
     public string Type { get; set; } = "Text";
     public string Category { get; set; } = "General";
     public string Content { get; set; } = string.Empty;
