@@ -7,21 +7,49 @@
         <h5 class="p-2">Components</h5>
 
         <div class="components-sidebar p-2">
-            @foreach (var component in Model.ComponentDtos)
-            {
-                <div class="component-card mb-3 p-2 border rounded"
-                     draggable="true"
-                     data-component-id="@component.Id"
-                     style="cursor: grab;">
-                    <div class="small fw-bold text-muted mb-1">
-                        @component.Type
+            <div class="accordion accordion-flush" id="componentAccordion">
+                @{
+                    var categories = Model.ComponentDtos.GroupBy(c => c.Category).ToList();
+                    var catIndex = 0;
+                }
+                @foreach (var group in categories)
+                {
+                    var collapseId = $"cat-collapse-{catIndex}";
+                    var headingId  = $"cat-heading-{catIndex}";
+                    catIndex++;
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button collapsed py-2 small fw-semibold"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId"
+                                    aria-expanded="false"
+                                    aria-controls="@collapseId">
+                                @group.Key
+                            </button>
+                        </h2>
+                        <div id="@collapseId"
+                             class="accordion-collapse collapse"
+                             aria-labelledby="@headingId"
+                             data-bs-parent="#componentAccordion">
+                            <div class="accordion-body p-2 d-flex flex-column gap-2">
+                                @foreach (var component in group)
+                                {
+                                    <div class="component-card p-2 border rounded bg-white"
+                                         draggable="true"
+                                         data-component-id="@component.Id"
+                                         style="cursor: grab;">
+                                        <div class="small fw-bold text-muted mb-1">@component.Type</div>
+                                        <div class="component-preview small overflow-hidden" style="max-height:60px;pointer-events:none;">
+                                            @Html.Raw(component.Content)
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="component-preview">
-                        @Html.Raw(component.Content)
-                    </div>
-                </div>
-            }
+                }
+            </div>
         </div>
     </div>
     <div class="col-10 border">

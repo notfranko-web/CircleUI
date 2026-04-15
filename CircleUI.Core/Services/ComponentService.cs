@@ -26,6 +26,7 @@ public class ComponentService : IComponentService
             {
                 Id = component.Id,
                 Type = component.Type,
+                Category = component.Category,
                 Content = component.Content,
                 Layout = component.Layout,
             };
