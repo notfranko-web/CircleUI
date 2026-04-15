@@ -45,7 +45,8 @@ public class SectionController : Controller
             Type = template!.Type,
             Category = template.Category,
             Content = template.Content,
-            Layout = template.Layout
+            Layout = template.Layout,
+            IsTemplate = false
         };
         _context.Components.Add(copy);
 

@@ -18,7 +18,7 @@ public class ComponentService : IComponentService
 
     public async Task<List<ComponentDTO>> GetAll()
     {
-        var components = await _context.Components.ToListAsync();
+        var components = await _context.Components.Where(c => c.IsTemplate).ToListAsync();
         var output = new List<ComponentDTO>();
         foreach (var component in components)
         {

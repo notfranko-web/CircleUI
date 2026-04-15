@@ -240,6 +240,7 @@
     .border-dashed { border-style: dashed !important; }
     [data-text-editable]:focus { outline: 2px solid #0d6efd; border-radius: 2px; }
     [data-text-editable]:hover { outline: 1px dashed #adb5bd; border-radius: 2px; cursor: text; }
+    .component-editable { max-height: 180px; overflow: hidden; }
     .nav-link:not(.active) ~ .page-delete-form { display: none !important; }
 </style>
 
@@ -325,6 +326,11 @@
             el.removeAttribute('contenteditable');
             el.removeAttribute('spellcheck');
             el.removeAttribute('data-text-editable');
+        });
+
+        // Remove browser contenteditable artifacts (e.g. trailing <div><br></div>).
+        containerEl.querySelectorAll('div').forEach(el => {
+            if (el.innerHTML.trim() === '' || el.innerHTML.trim() === '<br>') el.remove();
         });
 
         const componentId = containerEl.dataset.componentId;

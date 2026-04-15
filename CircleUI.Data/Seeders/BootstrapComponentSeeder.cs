@@ -7,7 +7,7 @@ public static class BootstrapComponentSeeder
 {
     public static async Task SeedAsync(ApplicationDbContext context)
     {
-        if (await context.Components.AnyAsync(c => c.Category == "Alerts"))
+        if (await context.Components.AnyAsync(c => c.IsTemplate && c.Category == "Alerts"))
             return;
 
         var components = new List<Component>
@@ -174,6 +174,7 @@ public static class BootstrapComponentSeeder
     {
         Type = type,
         Category = category,
-        Content = content
+        Content = content,
+        IsTemplate = true
     };
 }
