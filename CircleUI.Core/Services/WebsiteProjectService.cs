@@ -77,7 +77,7 @@ public class WebsiteProjectService : IWebsiteProjectService
             
         };
 
-        foreach (var page in websiteProject.Pages)
+        foreach (var page in websiteProject.Pages.OrderBy(p => p.CreatedAt))
         {
             var dto = new PageDTO()
             {
@@ -86,9 +86,9 @@ public class WebsiteProjectService : IWebsiteProjectService
                 Path = page.Path,
                 MetaDescription = page.MetaDescription,
                 MetaKeywords = page.MetaKeywords,
-                ProjectId = page.ProjectId 
+                ProjectId = page.ProjectId
             };
-            foreach (var section in page.PageSections)
+            foreach (var section in page.PageSections.OrderBy(ps => ps.Order))
             {
                 var sectionDto = new SectionDTO()
                 {

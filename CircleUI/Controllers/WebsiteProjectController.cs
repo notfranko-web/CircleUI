@@ -114,6 +114,7 @@ public class WebsiteProjectController : Controller
         var components = await _componentService.GetAll();
         WebsiteProjectBuilderViewModel builder = new WebsiteProjectBuilderViewModel()
         {
+            Id = websiteProject.Id ?? Guid.Empty,
             Name = websiteProject.Name,
             Description = websiteProject.Description,
             Domain = websiteProject.Domain,
