@@ -29,6 +29,22 @@ public class WebsiteProjectService : IWebsiteProjectService
         }).ToList();
     }
 
+    public async Task<List<WebsiteProjectDTO>> GetByUserId(string userId)
+    {
+        var websiteProjects = await _context.WebsiteProjects
+            .Where(wp => wp.UserId == userId)
+            .ToListAsync();
+        return websiteProjects.Select(wp => new WebsiteProjectDTO()
+        {
+            Id = wp.Id,
+            Name = wp.Name,
+            Description = wp.Description,
+            Domain = wp.Domain,
+            IsPublished = wp.IsPublished,
+            UserId = wp.UserId
+        }).ToList();
+    }
+
     public async Task<WebsiteProjectDTO> Create(WebsiteProjectDTO input)
     {
         var websiteProject = new WebsiteProject()

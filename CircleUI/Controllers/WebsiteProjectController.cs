@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using CircleUI.Core.DTOs;
 using CircleUI.Core.Interfaces;
 using CircleUI.Core.Services;
@@ -21,7 +22,10 @@ public class WebsiteProjectController : Controller
     // GET
     public async Task<IActionResult> Index()
     {
-        var projects = await _service.GetAll();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var projects = userId is not null
+            ? await _service.GetByUserId(userId)
+            : new List<WebsiteProjectDTO>();
         return View(projects);
     }
     
@@ -47,8 +51,8 @@ public class WebsiteProjectController : Controller
             Description = input.Description,
             Domain = input.Domain,
             IsPublished = input.IsPublished,
-            UserId = input.UserId
-        }; 
+            UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!
+        };
         await _service.Create(websiteProject);
         return RedirectToAction("Index");
     }
@@ -124,5 +128,13 @@ public class WebsiteProjectController : Controller
             ComponentDtos = components
         };
         return View(builder);
+    }
+
+    public async Task<IActionResult> Preview(string id, Guid pageId)
+    {
+        WebsiteProjectDTO websiteProject = await _service.GetById(id);
+        var page = websiteProject.Pages.FirstOrDefault(p => p.Id == pageId);
+        if (page is null) return NotFound();
+        return View(page);
     }
 }

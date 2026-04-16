@@ -1,5 +1,6 @@
 @model CircleUI.ViewModels.WebsiteProject.WebsiteProjectBuilderViewModel
 
+@Html.AntiForgeryToken()
 <h1>Build Project </h1>
 <div class="row">
     
@@ -141,9 +142,13 @@
                 <div id="pane-@page2.Id"
                      class="tab-pane fade"
                      role="tabpanel">
-                    <h3>@page2.Title</h3>
-                    <div>@page2.Id</div>
-                    <div>@page2.Path</div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">@page2.Title</h3>
+                        <a href="@Url.Action("Preview", "WebsiteProject", new { id = Model.Id, pageId = page2.Id })"
+                           target="_blank"
+                           class="btn btn-sm btn-outline-primary">Preview</a>
+                    </div>
+                    <div class="text-muted small">@page2.Path</div>
                     
                     <div class="d-flex flex-column gap-3 mt-2">
                         @foreach (var section1 in page2.SectionDtos)
@@ -256,33 +261,57 @@
     // Drag source tracking
     let draggedComponentId = null;
 
-    document.querySelectorAll('.component-card[draggable]').forEach(card => {
-        card.addEventListener('dragstart', e => {
+    document.addEventListener('dragstart', e => {
+        const card = e.target.closest('.component-card[draggable]');
+        if (card) {
             draggedComponentId = card.dataset.componentId;
             e.dataTransfer.effectAllowed = 'copy';
-        });
-        card.addEventListener('dragend', () => { draggedComponentId = null; });
+        }
     });
 
-    document.querySelectorAll('.section-drop-zone').forEach(zone => {
-        zone.addEventListener('dragover', e => {
+    document.addEventListener('dragend', e => {
+        const card = e.target.closest('.component-card[draggable]');
+        if (card) {
+            draggedComponentId = null;
+        }
+    });
+
+    document.addEventListener('dragover', e => {
+        const zone = e.target.closest('.section-drop-zone');
+        if (zone) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
             zone.classList.add('drag-over');
-        });
-        zone.addEventListener('dragleave', e => {
-            if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over');
-        });
-        zone.addEventListener('drop', async e => {
+        }
+    });
+
+    document.addEventListener('dragleave', e => {
+        const zone = e.target.closest('.section-drop-zone');
+        if (zone && !zone.contains(e.relatedTarget)) {
+            zone.classList.remove('drag-over');
+        }
+    });
+
+    document.addEventListener('drop', async e => {
+        const zone = e.target.closest('.section-drop-zone');
+        if (zone) {
             e.preventDefault();
             zone.classList.remove('drag-over');
             if (!draggedComponentId) return;
 
             const sectionId = zone.dataset.sectionId;
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!tokenInput) {
+                console.error("Anti-forgery token not found.");
+                return;
+            }
             const res = await fetch('/Section/AddComponent', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `sectionId=${sectionId}&componentId=${draggedComponentId}`
+                headers: { 
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': tokenInput.value
+                },
+                body: `sectionId=${encodeURIComponent(sectionId)}&componentId=${encodeURIComponent(draggedComponentId)}`
             });
             if (!res.ok) return;
             const data = await res.json();
@@ -317,11 +346,14 @@
             el.appendChild(contentDiv);
             container.appendChild(el);
             activateComponentEditing(contentDiv);
-            attachRemoveHandler(removeBtn);
-        });
+            // No need to explicitly attach remove handler if using delegation
+        }
     });
-    
+
     function activateComponentEditing(containerEl) {
+        if (containerEl.dataset.editingActivated) return;
+        containerEl.dataset.editingActivated = 'true';
+
         containerEl.querySelectorAll('[data-text-editable]').forEach(el => {
             el.removeAttribute('contenteditable');
             el.removeAttribute('spellcheck');
@@ -345,30 +377,51 @@
             parent.contentEditable = 'true';
             parent.spellcheck = false;
             parent.setAttribute('data-text-editable', '');
-            parent.addEventListener('blur', async () => {
-                const clone = containerEl.cloneNode(true);
-                clone.querySelectorAll('[data-text-editable]').forEach(el => {
-                    el.removeAttribute('contenteditable');
-                    el.removeAttribute('spellcheck');
-                    el.removeAttribute('data-text-editable');
-                });
-                await fetch('/Section/UpdateComponentContent', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `componentId=${encodeURIComponent(componentId)}&content=${encodeURIComponent(clone.innerHTML)}`
-                });
-            });
         }
     }
 
-    function attachRemoveHandler(btn) {
-        btn.addEventListener('click', async () => {
+    document.addEventListener('blur', async e => {
+        const editable = e.target.closest('[data-text-editable]');
+        if (editable) {
+            const containerEl = editable.closest('.component-editable');
+            if (!containerEl) return;
+            const componentId = containerEl.dataset.componentId;
+
+            const clone = containerEl.cloneNode(true);
+            clone.querySelectorAll('[data-text-editable]').forEach(el => {
+                el.removeAttribute('contenteditable');
+                el.removeAttribute('spellcheck');
+                el.removeAttribute('data-text-editable');
+                el.removeAttribute('data-editing-activated');
+            });
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!tokenInput) return;
+
+            await fetch('/Section/UpdateComponentContent', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': tokenInput.value
+                },
+                body: `componentId=${encodeURIComponent(componentId)}&content=${encodeURIComponent(clone.innerHTML)}`
+            });
+        }
+    }, true);
+
+    document.addEventListener('click', async e => {
+        const btn = e.target.closest('.remove-component-btn');
+        if (btn) {
             const instance = btn.closest('.component-instance');
             const scId = instance.dataset.scId;
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!tokenInput) return;
             const res = await fetch('/Section/RemoveComponent', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `sectionComponentId=${scId}`
+                headers: { 
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': tokenInput.value
+                },
+                body: `sectionComponentId=${encodeURIComponent(scId)}`
             });
             if (!res.ok) return;
             const json = await res.json();
@@ -379,9 +432,8 @@
                     container.innerHTML = '<div class="drop-placeholder text-muted small fst-italic p-2 text-center border border-dashed rounded">Drop a component here</div>';
                 }
             }
-        });
-    }
+        }
+    });
 
     document.querySelectorAll('.component-editable').forEach(activateComponentEditing);
-    document.querySelectorAll('.remove-component-btn').forEach(attachRemoveHandler);
 </script>

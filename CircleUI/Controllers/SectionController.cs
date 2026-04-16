@@ -37,12 +37,14 @@ public class SectionController : Controller
     [HttpPost]
     public async Task<IActionResult> AddComponent(Guid sectionId, Guid componentId)
     {
+        var template = await _context.Components.FindAsync(componentId);
+        if (template is null) return Json(new { success = false, message = "Template not found" });
+
         var order = await _context.SectionComponents.CountAsync(sc => sc.SectionId == sectionId);
 
-        var template = await _context.Components.FindAsync(componentId);
         var copy = new Component
         {
-            Type = template!.Type,
+            Type = template.Type,
             Category = template.Category,
             Content = template.Content,
             Layout = template.Layout,
@@ -54,7 +56,8 @@ public class SectionController : Controller
         {
             SectionId = sectionId,
             ComponentId = copy.Id,
-            Order = order
+            Order = order,
+            Component = copy
         };
         _context.SectionComponents.Add(sc);
         await _context.SaveChangesAsync();
