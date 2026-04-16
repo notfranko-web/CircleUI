@@ -156,7 +156,17 @@
                             <div class="border rounded p-3 bg-light section-drop-zone"
                                  data-section-id="@section1.Id">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-semibold">@section1.Name</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button class="btn btn-sm btn-link p-0 text-decoration-none collapse-section-btn" 
+                                                type="button" 
+                                                data-bs-toggle="collapse" 
+                                                data-bs-target="#section-content-@section1.Id" 
+                                                aria-expanded="true" 
+                                                aria-controls="section-content-@section1.Id">
+                                            <i class="bi bi-chevron-down"></i>
+                                        </button>
+                                        <span class="fw-semibold">@section1.Name</span>
+                                    </div>
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="text-muted small font-monospace">@section1.HTMLId</span>
                                         <form asp-controller="Section" asp-action="RemoveFromPage" method="post" class="d-inline">
@@ -168,34 +178,37 @@
                                         </form>
                                     </div>
                                 </div>
-                                @if (!string.IsNullOrEmpty(section1.CSSClass))
-                                {
-                                    <div class="text-muted small mb-2">CSS: @section1.CSSClass</div>
-                                }
-                                <div class="section-components d-flex flex-column gap-2 mt-2">
-                                    @if (section1.ComponentDTOs.Any())
+                                
+                                <div id="section-content-@section1.Id" class="collapse show">
+                                    @if (!string.IsNullOrEmpty(section1.CSSClass))
                                     {
-                                        @foreach (var component2 in section1.ComponentDTOs)
+                                        <div class="text-muted small mb-2">CSS: @section1.CSSClass</div>
+                                    }
+                                    <div class="section-components d-flex flex-column gap-2 mt-2">
+                                        @if (section1.ComponentDTOs.Any())
                                         {
-                                            <div class="border rounded p-2 bg-white small component-instance"
-                                                 data-sc-id="@component2.SectionComponentId">
-                                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                                    <span class="badge bg-secondary">@component2.Type</span>
-                                                    <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                            @foreach (var component2 in section1.ComponentDTOs)
+                                            {
+                                                <div class="border rounded p-2 bg-white small component-instance"
+                                                     data-sc-id="@component2.SectionComponentId">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <span class="badge bg-secondary">@component2.Type</span>
+                                                        <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                                    </div>
+                                                    <div class="component-editable"
+                                                         data-component-id="@component2.Id">
+                                                        @Html.Raw(component2.Content)
+                                                    </div>
                                                 </div>
-                                                <div class="component-editable"
-                                                     data-component-id="@component2.Id">
-                                                    @Html.Raw(component2.Content)
-                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="drop-placeholder text-muted small fst-italic p-2 text-center border border-dashed rounded">
+                                                Drop a component here
                                             </div>
                                         }
-                                    }
-                                    else
-                                    {
-                                        <div class="drop-placeholder text-muted small fst-italic p-2 text-center border border-dashed rounded">
-                                            Drop a component here
-                                        </div>
-                                    }
+                                    </div>
                                 </div>
                             </div>
                         }
