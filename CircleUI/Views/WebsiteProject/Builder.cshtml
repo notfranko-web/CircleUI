@@ -250,13 +250,22 @@
 </style>
 
 <script>
-    // Restore active tab from query string
-    const params = new URLSearchParams(window.location.search);
-    const activeTab = params.get('activeTab');
-    if (activeTab) {
-        const trigger = document.querySelector(`[data-bs-target="#${activeTab}"]`);
-        if (trigger) new bootstrap.Tab(trigger).show();
-    }
+    // Restore active tab from query string or model
+    window.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        let activeTab = params.get('activeTab') || '@Html.Raw(Model.ActiveTab)';
+        console.log("Activating tab:", activeTab);
+        if (activeTab && activeTab !== 'home' && activeTab !== 'pane-') {
+            const triggerEl = document.querySelector(`[data-bs-target="#${activeTab}"]`);
+            if (triggerEl) {
+                console.log("Found trigger for tab:", activeTab);
+                // Ensure the button is clicked to trigger Bootstrap's internal state management
+                triggerEl.click();
+            } else {
+                console.warn("Could not find trigger for tab:", activeTab);
+            }
+        }
+    });
 
     // Drag source tracking
     let draggedComponentId = null;
@@ -266,12 +275,14 @@
         if (card) {
             draggedComponentId = card.dataset.componentId;
             e.dataTransfer.effectAllowed = 'copy';
+            console.log("Drag started:", draggedComponentId);
         }
     });
 
     document.addEventListener('dragend', e => {
         const card = e.target.closest('.component-card[draggable]');
         if (card) {
+            console.log("Drag ended");
             draggedComponentId = null;
         }
     });
@@ -300,6 +311,7 @@
             if (!draggedComponentId) return;
 
             const sectionId = zone.dataset.sectionId;
+            console.log("Drop detected in section:", sectionId, "component:", draggedComponentId);
             const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
             if (!tokenInput) {
                 console.error("Anti-forgery token not found.");
@@ -313,9 +325,16 @@
                 },
                 body: `sectionId=${encodeURIComponent(sectionId)}&componentId=${encodeURIComponent(draggedComponentId)}`
             });
-            if (!res.ok) return;
+            if (!res.ok) {
+                console.error("Fetch failed with status:", res.status);
+                return;
+            }
             const data = await res.json();
-            if (!data.success) return;
+            console.log("Component added result:", data);
+            if (!data.success) {
+                console.error("Component addition failed:", data.message);
+                return;
+            }
 
             const container = zone.querySelector('.section-components');
 
@@ -336,24 +355,27 @@
             removeBtn.title = 'Remove component';
             removeBtn.textContent = '×';
             header.appendChild(removeBtn);
+            el.appendChild(header);
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'component-editable';
             contentDiv.dataset.componentId = data.componentId;
             contentDiv.innerHTML = data.content;
 
-            el.appendChild(header);
             el.appendChild(contentDiv);
             container.appendChild(el);
             activateComponentEditing(contentDiv);
+            console.log("New component element added and activated.");
             // No need to explicitly attach remove handler if using delegation
         }
     });
 
     function activateComponentEditing(containerEl) {
+        if (!containerEl) return;
         if (containerEl.dataset.editingActivated) return;
         containerEl.dataset.editingActivated = 'true';
 
+        console.log("Activating editing for container:", containerEl);
         containerEl.querySelectorAll('[data-text-editable]').forEach(el => {
             el.removeAttribute('contenteditable');
             el.removeAttribute('spellcheck');
@@ -395,16 +417,27 @@
                 el.removeAttribute('data-editing-activated');
             });
             const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-            if (!tokenInput) return;
+            if (!tokenInput) {
+                console.warn("Anti-forgery token not found for content update.");
+                return;
+            }
 
-            await fetch('/Section/UpdateComponentContent', {
+            console.log("Saving content for component:", componentId);
+            const body = `componentId=${encodeURIComponent(componentId)}&content=${encodeURIComponent(clone.innerHTML)}`;
+            console.log("Save payload length:", body.length);
+            const res = await fetch('/Section/UpdateComponentContent', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'RequestVerificationToken': tokenInput.value
                 },
-                body: `componentId=${encodeURIComponent(componentId)}&content=${encodeURIComponent(clone.innerHTML)}`
+                body: body
             });
+            if (!res.ok) {
+                console.error("Content update failed with status:", res.status);
+            } else {
+                console.log("Content saved successfully.");
+            }
         }
     }, true);
 
@@ -413,8 +446,12 @@
         if (btn) {
             const instance = btn.closest('.component-instance');
             const scId = instance.dataset.scId;
+            console.log("Removing component instance:", scId);
             const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-            if (!tokenInput) return;
+            if (!tokenInput) {
+                console.warn("Anti-forgery token not found for removal.");
+                return;
+            }
             const res = await fetch('/Section/RemoveComponent', {
                 method: 'POST',
                 headers: { 
@@ -423,8 +460,12 @@
                 },
                 body: `sectionComponentId=${encodeURIComponent(scId)}`
             });
-            if (!res.ok) return;
+            if (!res.ok) {
+                console.error("Removal failed with status:", res.status);
+                return;
+            }
             const json = await res.json();
+            console.log("Removal result:", json);
             if (json.success) {
                 const container = instance.closest('.section-components');
                 instance.remove();

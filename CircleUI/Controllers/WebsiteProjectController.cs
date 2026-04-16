@@ -112,7 +112,7 @@ public class WebsiteProjectController : Controller
         return View(builder);
     }
     
-    public async Task<IActionResult> Builder(string id)
+    public async Task<IActionResult> Builder(string id, string? activeTab = null)
     {
         WebsiteProjectDTO websiteProject = await _service.GetById(id);
         var components = await _componentService.GetAll();
@@ -125,7 +125,8 @@ public class WebsiteProjectController : Controller
             IsPublished = websiteProject.IsPublished,
             UserId = websiteProject.UserId,
             PageDtos  = websiteProject.Pages,
-            ComponentDtos = components
+            ComponentDtos = components,
+            ActiveTab = activeTab
         };
         return View(builder);
     }

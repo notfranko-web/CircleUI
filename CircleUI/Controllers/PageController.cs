@@ -53,14 +53,16 @@ public class PageController : Controller
     
     // DELETE FROM BUILDER
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteFromBuilder(Guid pageId, Guid projectId)
     {
         await _service.Delete(pageId.ToString());
-        return RedirectToAction("Builder", "WebsiteProject", new { id = projectId });
+        return RedirectToAction("Builder", "WebsiteProject", new { id = projectId, activeTab = "home" });
     }
 
     // CREATE FROM BUILDER
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateForBuilder(Guid projectId, string title)
     {
         var page = new PageDTO()
@@ -71,13 +73,14 @@ public class PageController : Controller
         };
         try
         {
-            await _service.Create(page);
+            var created = await _service.Create(page);
+            return RedirectToAction("Builder", "WebsiteProject", new { id = projectId, activeTab = $"pane-{created.Id}" });
         }
         catch (InvalidOperationException ex)
         {
             TempData["PageError"] = ex.Message;
         }
-        return RedirectToAction("Builder", "WebsiteProject", new { id = projectId });
+        return RedirectToAction("Builder", "WebsiteProject", new { id = projectId, activeTab = "home" });
     }
 
     // UPDATE

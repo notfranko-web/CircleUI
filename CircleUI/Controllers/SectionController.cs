@@ -66,6 +66,7 @@ public class SectionController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> RemoveFromPage(Guid sectionId, Guid pageId, Guid projectId)
     {
         var pageSection = await _context.PageSections
@@ -77,6 +78,7 @@ public class SectionController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddToPage(Guid pageId, Guid projectId, string name = "New Section")
     {
         var order = await _context.PageSections.CountAsync(ps => ps.PageId == pageId);

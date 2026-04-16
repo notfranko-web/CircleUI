@@ -12,4 +12,5 @@ public class WebsiteProjectBuilderViewModel
     public string UserId { get; set; } = null!;
     public List<ComponentDTO> ComponentDtos = new List<ComponentDTO>();
     public List<PageDTO> PageDtos = new List<PageDTO>();
+    public string? ActiveTab { get; set; }
 }
