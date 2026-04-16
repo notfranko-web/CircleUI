@@ -7,3 +7,4 @@ CircleUI.Core/obj/
 CircleUI.Core/bin/
 *.DotSettings.user
 global.json
+CircleUI/wwwroot/uploads/*
