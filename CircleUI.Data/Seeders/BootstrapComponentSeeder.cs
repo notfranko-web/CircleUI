@@ -29,13 +29,13 @@ public static class BootstrapComponentSeeder
                     "<div id=\"carouselExample\" class=\"carousel slide\">" +
                     "<div class=\"carousel-inner\">" +
                     "<div class=\"carousel-item active\">" +
-                    "<img src=\"https://placehold.co/800x400?text=Slide+1\" class=\"d-block w-100\" alt=\"Slide 1\">" +
+                    "<img src=\"https://placehold.co/800x400?text=Slide+1\" class=\"d-block mx-auto\" style=\"max-width:100%; height:auto; max-height:400px; object-fit:contain;\" alt=\"Slide 1\">" +
                     "</div>" +
                     "<div class=\"carousel-item\">" +
-                    "<img src=\"https://placehold.co/800x400?text=Slide+2\" class=\"d-block w-100\" alt=\"Slide 2\">" +
+                    "<img src=\"https://placehold.co/800x400?text=Slide+2\" class=\"d-block mx-auto\" style=\"max-width:100%; height:auto; max-height:400px; object-fit:contain;\" alt=\"Slide 2\">" +
                     "</div>" +
                     "<div class=\"carousel-item\">" +
-                    "<img src=\"https://placehold.co/800x400?text=Slide+3\" class=\"d-block w-100\" alt=\"Slide 3\">" +
+                    "<img src=\"https://placehold.co/800x400?text=Slide+3\" class=\"d-block mx-auto\" style=\"max-width:100%; height:auto; max-height:400px; object-fit:contain;\" alt=\"Slide 3\">" +
                     "</div>" +
                     "</div>" +
                     "<button class=\"carousel-control-prev\" type=\"button\" data-bs-target=\"#carouselExample\" data-bs-slide=\"prev\">" +
@@ -56,13 +56,13 @@ public static class BootstrapComponentSeeder
                     "</div>" +
                     "<div class=\"carousel-inner\">" +
                     "<div class=\"carousel-item active\">" +
-                    "<img src=\"https://placehold.co/800x400?text=Slide+1\" class=\"d-block w-100\" alt=\"Slide 1\">" +
+                    "<img src=\"https://placehold.co/800x400?text=Slide+1\" class=\"d-block mx-auto\" style=\"max-width:100%; height:auto; max-height:400px; object-fit:contain;\" alt=\"Slide 1\">" +
                     "</div>" +
                     "<div class=\"carousel-item\">" +
-                    "<img src=\"https://placehold.co/800x400?text=Slide+2\" class=\"d-block w-100\" alt=\"Slide 2\">" +
+                    "<img src=\"https://placehold.co/800x400?text=Slide+2\" class=\"d-block mx-auto\" style=\"max-width:100%; height:auto; max-height:400px; object-fit:contain;\" alt=\"Slide 2\">" +
                     "</div>" +
                     "<div class=\"carousel-item\">" +
-                    "<img src=\"https://placehold.co/800x400?text=Slide+3\" class=\"d-block w-100\" alt=\"Slide 3\">" +
+                    "<img src=\"https://placehold.co/800x400?text=Slide+3\" class=\"d-block mx-auto\" style=\"max-width:100%; height:auto; max-height:400px; object-fit:contain;\" alt=\"Slide 3\">" +
                     "</div>" +
                     "</div>" +
                     "<button class=\"carousel-control-prev\" type=\"button\" data-bs-target=\"#carouselExampleIndicators\" data-bs-slide=\"prev\">" +

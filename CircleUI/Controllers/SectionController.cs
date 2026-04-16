@@ -35,6 +35,33 @@ public class SectionController : Controller
     }
 
     [HttpPost]
+    public async Task<IActionResult> AddImageComponent(Guid sectionId, string imageUrl)
+    {
+        var order = await _context.SectionComponents.CountAsync(sc => sc.SectionId == sectionId);
+
+        var copy = new Component
+        {
+            Type = "Image",
+            Category = "Media",
+            Content = $"<img src=\"{imageUrl}\" class=\"img-fluid rounded shadow-sm d-block mx-auto\" style=\"max-width:50%;object-fit:contain\">",
+            IsTemplate = false
+        };
+        _context.Components.Add(copy);
+
+        var sc = new SectionComponent
+        {
+            SectionId = sectionId,
+            ComponentId = copy.Id,
+            Order = order,
+            Component = copy
+        };
+        _context.SectionComponents.Add(sc);
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, sectionComponentId = sc.Id, componentId = copy.Id, type = copy.Type, content = copy.Content });
+    }
+
+    [HttpPost]
     public async Task<IActionResult> AddComponent(Guid sectionId, Guid componentId)
     {
         var template = await _context.Components.FindAsync(componentId);

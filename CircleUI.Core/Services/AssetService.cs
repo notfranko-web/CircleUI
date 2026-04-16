@@ -29,6 +29,20 @@ public class AssetService : IAssetService
         }).ToList();
     }
 
+    public async Task<List<AssetDTO>> GetByUserId(string userId)
+    {
+        var assets = await _context.Assets.Where(a => a.UserId == userId).ToListAsync();
+        return assets.Select(a => new AssetDTO()
+        {
+            Id = a.Id,
+            FileName = a.FileName,
+            MimeType = a.MimeType,
+            SizeBytes = a.SizeBytes,
+            StoragePath = a.StoragePath,
+            UserId = a.UserId
+        }).ToList();
+    }
+
     public async Task<AssetDTO> Create(AssetDTO input)
     {
         var asset = new Asset()
@@ -55,11 +69,13 @@ public class AssetService : IAssetService
     
     public async Task<AssetDTO> GetById(string id)
     {
-        Guid guidId = new Guid(id);
+        if (!Guid.TryParse(id, out var guidId)) return null;
         var asset = await _context.Assets.FirstOrDefaultAsync(a => a.Id == guidId);
+        if (asset == null) return null;
         
         return new AssetDTO()
         {
+            Id = asset.Id,
             FileName = asset.FileName,
             MimeType = asset.MimeType,
             SizeBytes = asset.SizeBytes,

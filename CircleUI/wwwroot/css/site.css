@@ -263,7 +263,18 @@ dl.row dd {
   box-sizing: border-box;
 }
 
-.component-preview img { max-width: 100%; height: auto; }
+.component-preview img { 
+    max-width: 100%; 
+    height: auto; 
+    display: block; 
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.component-editable {
+    /* No fixed height or overflow - sections must expand */
+    min-height: 50px;
+}
 
 .component-preview table { display: block; overflow-x: auto; }
 
@@ -403,6 +414,36 @@ dl.row dd {
 .nav-pills .nav-link.active,
 .nav-pills .show > .nav-link {
   background-color: var(--color-primary);
+}
+
+.component-editable img {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 50%;
+    object-fit: contain;
+    height: auto;
+}
+
+.component-editable img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.asset-item, .modal-asset-item {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.asset-item:hover, .modal-asset-item:hover {
+    border-color: var(--color-primary);
 }
 
 button.accept-policy {
