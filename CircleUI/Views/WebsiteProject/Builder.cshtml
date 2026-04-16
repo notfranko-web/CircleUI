@@ -377,9 +377,16 @@
 
             el.appendChild(contentDiv);
             container.appendChild(el);
+            
+            if (contentDiv.querySelector('.carousel')) {
+                const carousels = contentDiv.querySelectorAll('.carousel');
+                carousels.forEach(c => {
+                    new bootstrap.Carousel(c);
+                });
+            }
+
             activateComponentEditing(contentDiv);
             console.log("New component element added and activated.");
-            // No need to explicitly attach remove handler if using delegation
         }
     });
 
@@ -389,6 +396,13 @@
         containerEl.dataset.editingActivated = 'true';
 
         console.log("Activating editing for container:", containerEl);
+        
+        // Skip editing activation for carousels to avoid breaking their structure
+        if (containerEl.querySelector('.carousel')) {
+             console.log("Skipping editing activation for carousel container");
+             return;
+        }
+
         containerEl.querySelectorAll('[data-text-editable]').forEach(el => {
             el.removeAttribute('contenteditable');
             el.removeAttribute('spellcheck');
