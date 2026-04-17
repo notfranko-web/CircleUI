@@ -83,41 +83,53 @@
                 return;
             }
 
-            const container = zone.querySelector('.section-components');
-            const placeholder = container.querySelector('.drop-placeholder');
-            if (placeholder) placeholder.remove();
+            function buildComponentEl(scId, type, componentId, content) {
+                const el = document.createElement('div');
+                el.className = 'border rounded p-2 bg-white small component-instance';
+                el.dataset.scId = scId;
 
-            const el = document.createElement('div');
-            el.className = 'border rounded p-2 bg-white small component-instance';
-            el.dataset.scId = data.sectionComponentId;
+                const hdr = document.createElement('div');
+                hdr.className = 'd-flex justify-content-between align-items-center mb-1';
+                hdr.innerHTML = `<span class="badge bg-secondary">${type}</span>`;
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn btn-link text-danger p-0 remove-component-btn';
+                removeBtn.title = 'Remove component';
+                removeBtn.textContent = '×';
+                hdr.appendChild(removeBtn);
+                el.appendChild(hdr);
 
-            const header = document.createElement('div');
-            header.className = 'd-flex justify-content-between align-items-center mb-1';
-            header.innerHTML = `<span class="badge bg-secondary">${data.type}</span>`;
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.className = 'btn btn-link text-danger p-0 remove-component-btn';
-            removeBtn.title = 'Remove component';
-            removeBtn.textContent = '×';
-            header.appendChild(removeBtn);
-            el.appendChild(header);
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'component-editable';
+                contentDiv.dataset.componentId = componentId;
+                contentDiv.innerHTML = content;
+                el.appendChild(contentDiv);
+                return { el, contentDiv };
+            }
 
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'component-editable';
-            contentDiv.dataset.componentId = data.componentId;
-            contentDiv.innerHTML = data.content;
+            function appendToZone(targetZone, el, contentDiv) {
+                const container = targetZone.querySelector('.section-components');
+                const placeholder = container.querySelector('.drop-placeholder');
+                if (placeholder) placeholder.remove();
+                container.appendChild(el);
+                if (contentDiv.querySelector('.carousel')) {
+                    contentDiv.querySelectorAll('.carousel').forEach(c => new bootstrap.Carousel(c));
+                }
+                b.activateComponentEditing(contentDiv);
+            }
 
-            el.appendChild(contentDiv);
-            container.appendChild(el);
-            
-            if (contentDiv.querySelector('.carousel')) {
-                const carousels = contentDiv.querySelectorAll('.carousel');
-                carousels.forEach(c => {
-                    new bootstrap.Carousel(c);
+            const { el, contentDiv } = buildComponentEl(data.sectionComponentId, data.type, data.componentId, data.content);
+            appendToZone(zone, el, contentDiv);
+
+            // If this is a global section, sync all other panes showing the same section
+            if (zone.classList.contains('global-section')) {
+                document.querySelectorAll(`.section-drop-zone[data-section-id="${sectionId}"]`).forEach(otherZone => {
+                    if (otherZone === zone) return;
+                    const { el: elClone, contentDiv: cdClone } = buildComponentEl(data.sectionComponentId, data.type, data.componentId, data.content);
+                    appendToZone(otherZone, elClone, cdClone);
                 });
             }
 
-            b.activateComponentEditing(contentDiv);
             console.log("New component element added and activated.");
         }
     });

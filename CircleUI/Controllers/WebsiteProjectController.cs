@@ -114,7 +114,7 @@ public class WebsiteProjectController : Controller
     
     public async Task<IActionResult> Builder(string id, string? activeTab = null)
     {
-        WebsiteProjectDTO websiteProject = await _service.GetById(id);
+        WebsiteProjectDTO websiteProject = await _service.EnsureHeaderFooter(id);
         var components = await _componentService.GetAll();
         WebsiteProjectBuilderViewModel builder = new WebsiteProjectBuilderViewModel()
         {
@@ -130,8 +130,10 @@ public class WebsiteProjectController : Controller
             ButtonColor = websiteProject.ButtonColor,
             ButtonTextColor = websiteProject.ButtonTextColor,
             BackgroundImage = websiteProject.BackgroundImage,
-            PageDtos  = websiteProject.Pages,
+            PageDtos = websiteProject.Pages,
             ComponentDtos = components,
+            HeaderSection = websiteProject.HeaderSection,
+            FooterSection = websiteProject.FooterSection,
             ActiveTab = activeTab
         };
         return View(builder);

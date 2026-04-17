@@ -71,14 +71,39 @@
         <span>Previewing: <strong>@Model.Title</strong></span>
     </div>
 
-    @foreach (var section in Model.SectionDtos)
+    @{
+        var previewProject = ViewBag.Project as CircleUI.Core.DTOs.WebsiteProjectDTO;
+    }
+    @if (previewProject?.HeaderSection != null)
     {
-        <section>
-            @foreach (var component in section.ComponentDTOs)
+        <header>
+            @foreach (var hc in previewProject.HeaderSection.ComponentDTOs)
             {
-                @Html.Raw(component.Content)
+                @Html.Raw(hc.Content)
             }
-        </section>
+        </header>
+    }
+
+    <main>
+        @foreach (var section in Model.SectionDtos)
+        {
+            <section>
+                @foreach (var component in section.ComponentDTOs)
+                {
+                    @Html.Raw(component.Content)
+                }
+            </section>
+        }
+    </main>
+
+    @if (previewProject?.FooterSection != null)
+    {
+        <footer>
+            @foreach (var fc in previewProject.FooterSection.ComponentDTOs)
+            {
+                @Html.Raw(fc.Content)
+            }
+        </footer>
     }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

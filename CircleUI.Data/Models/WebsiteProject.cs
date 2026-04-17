@@ -18,6 +18,12 @@ public class WebsiteProject
     public string ButtonTextColor { get; set; } = "#ffffff";
     public string? BackgroundImage { get; set; }
     
+    public Guid? HeaderSectionId { get; set; }
+    public Section? HeaderSection { get; set; }
+
+    public Guid? FooterSectionId { get; set; }
+    public Section? FooterSection { get; set; }
+
     public ICollection<Page> Pages { get; set; } = new List<Page>();
     public ICollection<PublishedVersion> PublishedVersions { get; set; } = new List<PublishedVersion>();
 }

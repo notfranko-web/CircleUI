@@ -18,5 +18,7 @@ public class WebsiteProjectBuilderViewModel
     public string? BackgroundImage { get; set; }
     public List<ComponentDTO> ComponentDtos = new List<ComponentDTO>();
     public List<PageDTO> PageDtos = new List<PageDTO>();
+    public SectionDTO? HeaderSection { get; set; }
+    public SectionDTO? FooterSection { get; set; }
     public string? ActiveTab { get; set; }
 }

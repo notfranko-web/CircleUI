@@ -55,8 +55,41 @@ public class WebsiteProjectService : IWebsiteProjectService
         }).ToList();
     }
 
+    public async Task<WebsiteProjectDTO> EnsureHeaderFooter(string projectId)
+    {
+        Guid guidId = new Guid(projectId);
+        var project = await _context.WebsiteProjects.FirstOrDefaultAsync(w => w.Id == guidId);
+        if (project == null) throw new Exception("Project not found");
+
+        bool changed = false;
+        if (project.HeaderSectionId == null)
+        {
+            var header = new Section { Name = "Global Header" };
+            _context.Sections.Add(header);
+            await _context.SaveChangesAsync();
+            project.HeaderSectionId = header.Id;
+            changed = true;
+        }
+        if (project.FooterSectionId == null)
+        {
+            var footer = new Section { Name = "Global Footer" };
+            _context.Sections.Add(footer);
+            await _context.SaveChangesAsync();
+            project.FooterSectionId = footer.Id;
+            changed = true;
+        }
+        if (changed) await _context.SaveChangesAsync();
+
+        return await GetById(projectId);
+    }
+
     public async Task<WebsiteProjectDTO> Create(WebsiteProjectDTO input)
     {
+        var headerSection = new Section { Name = "Global Header" };
+        var footerSection = new Section { Name = "Global Footer" };
+        _context.Sections.AddRange(headerSection, footerSection);
+        await _context.SaveChangesAsync();
+
         var websiteProject = new WebsiteProject()
         {
             Name = input.Name,
@@ -68,7 +101,9 @@ public class WebsiteProjectService : IWebsiteProjectService
             PrimaryTextColor = input.PrimaryTextColor,
             SecondaryTextColor = input.SecondaryTextColor,
             ButtonColor = input.ButtonColor,
-            ButtonTextColor = input.ButtonTextColor
+            ButtonTextColor = input.ButtonTextColor,
+            HeaderSectionId = headerSection.Id,
+            FooterSectionId = footerSection.Id
         };
         await _context.WebsiteProjects.AddAsync(websiteProject);
         await _context.SaveChangesAsync();
@@ -100,9 +135,15 @@ public class WebsiteProjectService : IWebsiteProjectService
             .ThenInclude(ps => ps.Section)
             .ThenInclude(s => s.SectionComponents)
             .ThenInclude(sc => sc.Component)
+            .Include(w => w.HeaderSection)
+            .ThenInclude(s => s.SectionComponents)
+            .ThenInclude(sc => sc.Component)
+            .Include(w => w.FooterSection)
+            .ThenInclude(s => s.SectionComponents)
+            .ThenInclude(sc => sc.Component)
             .FirstOrDefaultAsync(w => w.Id == guidId);
 
-        var output =  new WebsiteProjectDTO()
+        var output = new WebsiteProjectDTO()
         {
             Id = websiteProject.Id,
             Name = websiteProject.Name,
@@ -116,8 +157,9 @@ public class WebsiteProjectService : IWebsiteProjectService
             ButtonColor = websiteProject.ButtonColor,
             ButtonTextColor = websiteProject.ButtonTextColor,
             BackgroundImage = websiteProject.BackgroundImage,
+            HeaderSection = websiteProject.HeaderSection != null ? MapSection(websiteProject.HeaderSection) : null,
+            FooterSection = websiteProject.FooterSection != null ? MapSection(websiteProject.FooterSection) : null,
             Pages = new List<PageDTO>(),
-            
         };
 
         foreach (var page in websiteProject.Pages.OrderBy(p => p.CreatedAt))
@@ -202,5 +244,28 @@ public class WebsiteProjectService : IWebsiteProjectService
         var websiteProject = await _context.WebsiteProjects.FirstOrDefaultAsync(w => w.Id == guidId);
         _context.WebsiteProjects.Remove(websiteProject);
         await _context.SaveChangesAsync();
+    }
+
+    private SectionDTO MapSection(Section section)
+    {
+        var dto = new SectionDTO
+        {
+            Id = section.Id,
+            Name = section.Name,
+            HTMLId = section.HTMLId ?? string.Empty,
+            CSSClass = section.CSSClass ?? string.Empty,
+        };
+        foreach (var sc in section.SectionComponents.OrderBy(x => x.Order))
+        {
+            dto.ComponentDTOs.Add(new ComponentDTO
+            {
+                Id = sc.Component.Id,
+                SectionComponentId = sc.Id,
+                Type = sc.Component.Type,
+                Content = sc.Component.Content,
+                Layout = sc.Component.Layout,
+            });
+        }
+        return dto;
     }
 }

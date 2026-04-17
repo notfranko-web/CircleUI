@@ -286,6 +286,43 @@
                     </div>
                     <div class="text-muted small">@page2.Path</div>
                     
+                    @* Global Header *@
+                    @if (Model.HeaderSection != null)
+                    {
+                        <div class="border rounded p-3 mt-2 section-drop-zone global-section"
+                             data-section-id="@Model.HeaderSection.Id"
+                             style="border-color: #6f42c1 !important; background: #f8f5ff;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold"><span class="badge bg-purple me-1" style="background:#6f42c1;">Global</span> Header</span>
+                                <span class="text-muted small">Shared across all pages</span>
+                            </div>
+                            <div class="section-components d-flex flex-column gap-2">
+                                @if (Model.HeaderSection.ComponentDTOs.Any())
+                                {
+                                    @foreach (var hc in Model.HeaderSection.ComponentDTOs)
+                                    {
+                                        <div class="border rounded p-2 bg-white small component-instance"
+                                             data-sc-id="@hc.SectionComponentId">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="badge bg-secondary">@hc.Type</span>
+                                                <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                            </div>
+                                            <div class="component-editable" data-component-id="@hc.Id">
+                                                @Html.Raw(hc.Content)
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="drop-placeholder text-muted small fst-italic p-2 text-center border border-dashed rounded">
+                                        Drop a component here
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
                     <div class="d-flex flex-column gap-3 mt-2">
                         @foreach (var section1 in page2.SectionDtos)
                         {
@@ -349,6 +386,44 @@
                             </div>
                         }
                     </div>
+
+                    @* Global Footer *@
+                    @if (Model.FooterSection != null)
+                    {
+                        <div class="border rounded p-3 mt-2 section-drop-zone global-section"
+                             data-section-id="@Model.FooterSection.Id"
+                             style="border-color: #6f42c1 !important; background: #f8f5ff;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold"><span class="badge me-1" style="background:#6f42c1;">Global</span> Footer</span>
+                                <span class="text-muted small">Shared across all pages</span>
+                            </div>
+                            <div class="section-components d-flex flex-column gap-2">
+                                @if (Model.FooterSection.ComponentDTOs.Any())
+                                {
+                                    @foreach (var fc in Model.FooterSection.ComponentDTOs)
+                                    {
+                                        <div class="border rounded p-2 bg-white small component-instance"
+                                             data-sc-id="@fc.SectionComponentId">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="badge bg-secondary">@fc.Type</span>
+                                                <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                            </div>
+                                            <div class="component-editable" data-component-id="@fc.Id">
+                                                @Html.Raw(fc.Content)
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="drop-placeholder text-muted small fst-italic p-2 text-center border border-dashed rounded">
+                                        Drop a component here
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
                     <button type="button" class="btn btn-outline-secondary btn-sm mt-2"
                             data-bs-toggle="modal" data-bs-target="#addSectionModal-@page2.Id">
                         + Add Section

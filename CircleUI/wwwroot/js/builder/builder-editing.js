@@ -118,7 +118,7 @@
 
             const res = await fetch('/Section/RemoveComponent', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'RequestVerificationToken': token
                 },
@@ -130,11 +130,14 @@
             }
             const json = await res.json();
             if (json.success) {
-                const container = instance.closest('.section-components');
-                instance.remove();
-                if (!container.querySelector('.component-instance')) {
-                    container.innerHTML = '<div class="drop-placeholder text-muted small fst-italic p-2 text-center border border-dashed rounded">Drop a component here</div>';
-                }
+                // Remove all DOM copies with this scId (covers global header/footer duplicated across page panes)
+                document.querySelectorAll(`.component-instance[data-sc-id="${scId}"]`).forEach(el => {
+                    const container = el.closest('.section-components');
+                    el.remove();
+                    if (container && !container.querySelector('.component-instance')) {
+                        container.innerHTML = '<div class="drop-placeholder text-muted small fst-italic p-2 text-center border border-dashed rounded">Drop a component here</div>';
+                    }
+                });
             }
         }
     });
