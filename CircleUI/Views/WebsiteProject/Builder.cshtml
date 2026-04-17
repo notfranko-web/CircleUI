@@ -300,6 +300,52 @@
     </div>
 </div>
 
+<!-- Button Link Modal -->
+<div class="modal fade" id="linkModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Link</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="linkText" class="form-label">Link Text</label>
+                    <input type="text" class="form-control" id="linkText" placeholder="Button Label">
+                </div>
+                <hr />
+                <div class="mb-3">
+                    <label for="linkPage" class="form-label">Internal Page</label>
+                    <select class="form-select" id="linkPage">
+                        <option value="">-- External URL or Custom Path --</option>
+                        @foreach (var pageDto in Model.PageDtos)
+                        {
+                            <option value="/WebsiteProject/Preview/@Model.Id?pageId=@pageDto.Id">@pageDto.Title (@pageDto.Path)</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="linkHref" class="form-label">URL / Link</label>
+                    <input type="text" class="form-control" id="linkHref" placeholder="https://example.com or #section">
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="linkTargetBlank">
+                        <label class="form-check-label" for="linkTargetBlank">
+                            Open in new tab
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger d-none" id="removeLinkBtn">Remove Link</button>
+                <button type="button" class="btn btn-primary" id="applyLinkBtn">Apply Link</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Image Lightbox Modal -->
 <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -357,516 +403,28 @@
     .component-editable img:hover { outline: 3px solid #0d6efd; transform: scale(1.01); }
     .asset-item:hover, .modal-asset-item:hover { transform: scale(1.05); outline: 3px solid #0d6efd; border-color: transparent; }
 
+    /* Visual indicator for linkable elements in builder */
+    .component-editable a:hover, 
+    .component-editable .btn:hover, 
+    .component-editable button:hover { 
+        outline: 2px dashed #0d6efd; 
+        outline-offset: 2px;
+        cursor: pointer;
+    }
+
     #lightboxImage { cursor: zoom-out; }
 </style>
 
+<script src="~/js/builder/builder-core.js"></script>
+<script src="~/js/builder/builder-dragdrop.js"></script>
+<script src="~/js/builder/builder-editing.js"></script>
+<script src="~/js/builder/builder-assets.js"></script>
+<script src="~/js/builder/builder-modals.js"></script>
+
 <script>
-    // Restore active tab from query string or model
-    window.addEventListener('DOMContentLoaded', () => {
-        const params = new URLSearchParams(window.location.search);
-        let activeTab = params.get('activeTab') || '@Html.Raw(Model.ActiveTab)';
-        console.log("Activating tab:", activeTab);
-        if (activeTab && activeTab !== 'home' && activeTab !== 'pane-') {
-            const triggerEl = document.querySelector(`[data-bs-target="#${activeTab}"]`);
-            if (triggerEl) {
-                console.log("Found trigger for tab:", activeTab);
-                // Ensure the button is clicked to trigger Bootstrap's internal state management
-                triggerEl.click();
-            } else {
-                console.warn("Could not find trigger for tab:", activeTab);
-            }
-        }
-        
-        // Ensure assets are loaded on start
-        loadAssets();
+    // Initialize builder with server-side data
+    builder.init({
+        projectId: '@Model.Id',
+        activeTab: '@Html.Raw(Model.ActiveTab)'
     });
-
-    // Drag source tracking
-    let draggedComponentId = null;
-    let draggedAssetPath = null;
-
-    document.addEventListener('dragstart', e => {
-        const card = e.target.closest('.component-card[draggable]');
-        if (card) {
-            draggedComponentId = card.dataset.componentId;
-            e.dataTransfer.effectAllowed = 'copy';
-            console.log("Drag started (component):", draggedComponentId);
-            return;
-        }
-
-        const asset = e.target.closest('.asset-item[draggable]');
-        if (asset) {
-            draggedAssetPath = asset.dataset.path;
-            e.dataTransfer.effectAllowed = 'copy';
-            console.log("Drag started (asset):", draggedAssetPath);
-        }
-    });
-
-    document.addEventListener('dragend', e => {
-        draggedComponentId = null;
-        draggedAssetPath = null;
-        console.log("Drag ended");
-    });
-
-    document.addEventListener('dragover', e => {
-        const zone = e.target.closest('.section-drop-zone');
-        if (zone) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
-            zone.classList.add('drag-over');
-        }
-    });
-
-    document.addEventListener('dragleave', e => {
-        const zone = e.target.closest('.section-drop-zone');
-        if (zone && !zone.contains(e.relatedTarget)) {
-            zone.classList.remove('drag-over');
-        }
-    });
-
-    document.addEventListener('drop', async e => {
-        const zone = e.target.closest('.section-drop-zone');
-        if (zone) {
-            e.preventDefault();
-            zone.classList.remove('drag-over');
-            
-            if (!draggedComponentId && !draggedAssetPath) return;
-
-            const sectionId = zone.dataset.sectionId;
-            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-            if (!tokenInput) {
-                console.error("Anti-forgery token not found.");
-                return;
-            }
-
-            let res;
-            if (draggedComponentId) {
-                console.log("Drop component:", draggedComponentId, "to section:", sectionId);
-                res = await fetch('/Section/AddComponent', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'RequestVerificationToken': tokenInput.value
-                    },
-                    body: `sectionId=${encodeURIComponent(sectionId)}&componentId=${encodeURIComponent(draggedComponentId)}`
-                });
-            } else if (draggedAssetPath) {
-                console.log("Drop asset:", draggedAssetPath, "to section:", sectionId);
-                res = await fetch('/Section/AddImageComponent', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'RequestVerificationToken': tokenInput.value
-                    },
-                    body: `sectionId=${encodeURIComponent(sectionId)}&imageUrl=${encodeURIComponent(draggedAssetPath)}`
-                });
-            }
-            if (!res.ok) {
-                console.error("Fetch failed with status:", res.status);
-                return;
-            }
-            const data = await res.json();
-            console.log("Component added result:", data);
-            if (!data.success) {
-                console.error("Component addition failed:", data.message);
-                return;
-            }
-
-            const container = zone.querySelector('.section-components');
-
-            // Remove placeholder if present
-            const placeholder = container.querySelector('.drop-placeholder');
-            if (placeholder) placeholder.remove();
-
-            const el = document.createElement('div');
-            el.className = 'border rounded p-2 bg-white small component-instance';
-            el.dataset.scId = data.sectionComponentId;
-
-            const header = document.createElement('div');
-            header.className = 'd-flex justify-content-between align-items-center mb-1';
-            header.innerHTML = `<span class="badge bg-secondary">${data.type}</span>`;
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.className = 'btn btn-link text-danger p-0 remove-component-btn';
-            removeBtn.title = 'Remove component';
-            removeBtn.textContent = '×';
-            header.appendChild(removeBtn);
-            el.appendChild(header);
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'component-editable';
-            contentDiv.dataset.componentId = data.componentId;
-            contentDiv.innerHTML = data.content;
-
-            el.appendChild(contentDiv);
-            container.appendChild(el);
-            
-            if (contentDiv.querySelector('.carousel')) {
-                const carousels = contentDiv.querySelectorAll('.carousel');
-                carousels.forEach(c => {
-                    new bootstrap.Carousel(c);
-                });
-            }
-
-            activateComponentEditing(contentDiv);
-            console.log("New component element added and activated.");
-        }
-    });
-
-    function activateComponentEditing(containerEl) {
-        if (!containerEl) return;
-        if (containerEl.dataset.editingActivated) return;
-        containerEl.dataset.editingActivated = 'true';
-
-        console.log("Activating editing for container:", containerEl);
-        
-        // Skip editing activation for carousels to avoid breaking their structure
-        if (containerEl.querySelector('.carousel')) {
-             console.log("Skipping editing activation for carousel container");
-             return;
-        }
-
-        containerEl.querySelectorAll('[data-text-editable]').forEach(el => {
-            el.removeAttribute('contenteditable');
-            el.removeAttribute('spellcheck');
-            el.removeAttribute('data-text-editable');
-        });
-
-        // Remove browser contenteditable artifacts (e.g. trailing <div><br></div>).
-        containerEl.querySelectorAll('div').forEach(el => {
-            if (el.innerHTML.trim() === '' || el.innerHTML.trim() === '<br>') el.remove();
-        });
-
-        const componentId = containerEl.dataset.componentId;
-        const walker = document.createTreeWalker(containerEl, NodeFilter.SHOW_TEXT);
-        const seen = new Set();
-        let node;
-        while ((node = walker.nextNode())) {
-            if (!node.textContent.trim()) continue;
-            const parent = node.parentElement;
-            if (!parent || parent === containerEl || seen.has(parent)) continue;
-            
-            // If parent is an <a> tag, we might want to make it editable too, but carefully
-            // If parent is an <img> (which shouldn't have text nodes anyway, but just in case)
-            if (parent.tagName === 'IMG' || parent.closest('img')) continue;
-
-            seen.add(parent);
-            parent.contentEditable = 'true';
-            parent.spellcheck = false;
-            parent.setAttribute('data-text-editable', '');
-        }
-        
-        wireImagesInContainer(containerEl);
-    }
-
-    document.addEventListener('blur', async e => {
-        const editable = e.target.closest('[data-text-editable]');
-        if (editable) {
-            const containerEl = editable.closest('.component-editable');
-            if (!containerEl) return;
-            const componentId = containerEl.dataset.componentId;
-
-            const clone = containerEl.cloneNode(true);
-            clone.querySelectorAll('[data-text-editable]').forEach(el => {
-                el.removeAttribute('contenteditable');
-                el.removeAttribute('spellcheck');
-                el.removeAttribute('data-text-editable');
-                el.removeAttribute('data-editing-activated');
-            });
-            clone.querySelectorAll('img').forEach(img => {
-                // Keep the style attribute for width/height preservation
-                img.removeAttribute('contenteditable');
-                img.removeAttribute('draggable');
-            });
-            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-            if (!tokenInput) {
-                console.warn("Anti-forgery token not found for content update.");
-                return;
-            }
-
-            console.log("Saving content for component:", componentId);
-            const body = `componentId=${encodeURIComponent(componentId)}&content=${encodeURIComponent(clone.innerHTML)}`;
-            console.log("Save payload length:", body.length);
-            const res = await fetch('/Section/UpdateComponentContent', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'RequestVerificationToken': tokenInput.value
-                },
-                body: body
-            });
-            if (!res.ok) {
-                console.error("Content update failed with status:", res.status);
-            } else {
-                console.log("Content saved successfully.");
-            }
-        }
-    }, true);
-
-    document.addEventListener('click', async e => {
-        const btn = e.target.closest('.remove-component-btn');
-        if (btn) {
-            const instance = btn.closest('.component-instance');
-            const scId = instance.dataset.scId;
-            console.log("Removing component instance:", scId);
-            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-            if (!tokenInput) {
-                console.warn("Anti-forgery token not found for removal.");
-                return;
-            }
-            const res = await fetch('/Section/RemoveComponent', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'RequestVerificationToken': tokenInput.value
-                },
-                body: `sectionComponentId=${encodeURIComponent(scId)}`
-            });
-            if (!res.ok) {
-                console.error("Removal failed with status:", res.status);
-                return;
-            }
-            const json = await res.json();
-            console.log("Removal result:", json);
-            if (json.success) {
-                const container = instance.closest('.section-components');
-                instance.remove();
-                if (!container.querySelector('.component-instance')) {
-                    container.innerHTML = '<div class="drop-placeholder text-muted small fst-italic p-2 text-center border border-dashed rounded">Drop a component here</div>';
-                }
-            }
-        }
-    });
-
-    document.querySelectorAll('.component-editable').forEach(activateComponentEditing);
-
-    // Asset Management
-    async function loadAssets() {
-        console.log("Loading assets...");
-        const res = await fetch('/Asset/GetMyAssets');
-        if (!res.ok) {
-            console.error("Failed to load assets:", res.status);
-            return;
-        }
-        const assets = await res.json();
-        console.log("Assets loaded:", assets.length);
-        
-        const assetList = document.getElementById('assetList');
-        const modalAssetList = document.getElementById('modalAssetList');
-        
-        const html = assets.map(a => `
-            <div class="asset-item-container">
-                <img src="${a.storagePath}" class="asset-item img-fluid rounded" title="${a.fileName}" data-path="${a.storagePath}" draggable="true">
-                <button class="btn btn-danger btn-sm delete-asset-btn" onclick="deleteAsset('${a.id}', event)">×</button>
-            </div>`).join('');
-        const modalHtml = assets.map(a => `
-            <div class="asset-item-container">
-                <img src="${a.storagePath}" class="modal-asset-item img-fluid rounded" title="${a.fileName}" data-path="${a.storagePath}">
-                <button class="btn btn-danger btn-sm delete-asset-btn" onclick="deleteAsset('${a.id}', event)">×</button>
-            </div>`).join('');
-        
-        if (assetList) assetList.innerHTML = html || '<div class="text-muted small w-100 text-center py-2">No photos uploaded.</div>';
-        if (modalAssetList) modalAssetList.innerHTML = modalHtml || '<div class="text-muted small w-100 text-center py-2">No photos uploaded.</div>';
-    }
-
-    async function deleteAsset(assetId, event) {
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        if (!confirm('Are you sure you want to delete this asset?')) return;
-
-        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-        try {
-            const res = await fetch(`/Asset/Delete/${assetId}`, {
-                method: 'POST',
-                headers: { 'RequestVerificationToken': tokenInput.value }
-            });
-            const json = await res.json();
-            if (json.success) {
-                await loadAssets();
-            } else {
-                alert(json.message || "Delete failed");
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    async function uploadFile(file, isModal = false) {
-        const progress = document.getElementById('uploadProgress');
-        if (progress && !isModal) progress.classList.remove('d-none');
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-        
-        try {
-            const res = await fetch('/Asset/Upload', {
-                method: 'POST',
-                headers: { 'RequestVerificationToken': tokenInput.value },
-                body: formData
-            });
-            const json = await res.json();
-            if (json.success) {
-                await loadAssets();
-            } else {
-                alert(json.message || "Upload failed");
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            if (progress && !isModal) progress.classList.add('d-none');
-        }
-    }
-
-    document.getElementById('assetUploadInput').addEventListener('change', e => {
-        if (e.target.files.length > 0) uploadFile(e.target.files[0]);
-    });
-    
-    document.getElementById('modalAssetUploadInput').addEventListener('change', e => {
-        if (e.target.files.length > 0) uploadFile(e.target.files[0], true);
-    });
-
-    // ─── Image Lightbox ───────────────────────────────────────────────────────
-    // Lazy modal accessors — safe to call before Bootstrap has initialised.
-    let activeImageElement = null;
-    function getLightboxModal()    { return bootstrap.Modal.getOrCreateInstance(document.getElementById('lightboxModal')); }
-    function getImageSelectModal() { return bootstrap.Modal.getOrCreateInstance(document.getElementById('imageSelectModal')); }
-
-    function openLightbox(img, isComponentImg) {
-        activeImageElement = isComponentImg ? img : null;
-
-        const lbImg    = document.getElementById('lightboxImage');
-        const range    = document.getElementById('imageWidthRange');
-        const rangeVal = document.getElementById('imageWidthVal');
-        const saveBtn  = document.getElementById('saveResizeBtn');
-        const chgBtn   = document.getElementById('changeImageBtn');
-
-        lbImg.src = img.src;
-        document.getElementById('lightboxCaption').textContent = img.title || img.alt || 'Image Preview';
-        lbImg.style.maxHeight  = '80vh';
-        lbImg.style.height     = 'auto';
-        lbImg.style.width      = 'auto';
-        lbImg.style.objectFit  = 'contain';
-        lbImg.classList.add('d-block', 'mx-auto');
-
-        if (isComponentImg) {
-            const w = parseInt(img.style.maxWidth || img.style.width) || 50;
-            range.value = w;
-            rangeVal.textContent = w + '%';
-            lbImg.style.maxWidth = w + '%';
-            saveBtn.classList.remove('d-none');
-            chgBtn.classList.remove('d-none');
-        } else {
-            lbImg.style.maxWidth = '100%';
-            saveBtn.classList.add('d-none');
-            chgBtn.classList.add('d-none');
-        }
-
-        getLightboxModal().show();
-    }
-
-    // Wire every <img> inside a .component-editable to open the lightbox.
-    // Uses .onclick (property assignment) — always overwrites cleanly, never stacks.
-    function wireImagesInContainer(containerEl) {
-        containerEl.querySelectorAll('img').forEach(function(img) {
-            img.contentEditable = 'false';
-            img.setAttribute('draggable', 'false');
-            img.style.cursor = 'pointer';
-            img.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                openLightbox(this, true);
-            };
-        });
-    }
-
-    // Width slider
-    document.getElementById('imageWidthRange').addEventListener('input', function() {
-        document.getElementById('lightboxImage').style.maxWidth = this.value + '%';
-        document.getElementById('imageWidthVal').textContent = this.value + '%';
-    });
-
-    // Apply size
-    document.getElementById('saveResizeBtn').addEventListener('click', function() {
-        if (!activeImageElement) return;
-        const w = document.getElementById('imageWidthRange').value + '%';
-        activeImageElement.style.maxWidth   = w;
-        activeImageElement.style.width      = 'auto';
-        activeImageElement.style.height     = 'auto';
-        activeImageElement.style.objectFit  = 'contain';
-        activeImageElement.classList.add('d-block', 'mx-auto');
-        saveComponentContent(activeImageElement.closest('.component-editable'));
-        getLightboxModal().hide();
-    });
-
-    // Change photo
-    document.getElementById('changeImageBtn').addEventListener('click', function() {
-        getLightboxModal().hide();
-        getImageSelectModal().show();
-    });
-
-    // Click lightbox image to close
-    document.getElementById('lightboxImage').addEventListener('click', function() {
-        getLightboxModal().hide();
-    });
-
-    // Sidebar asset or modal gallery: click to preview / select
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.remove-component-btn')) return;
-
-        const modalAsset = e.target.closest('.modal-asset-item');
-        if (modalAsset && activeImageElement) {
-            activeImageElement.src = modalAsset.dataset.path;
-            const container = activeImageElement.closest('.component-editable');
-            if (container) saveComponentContent(container);
-            getImageSelectModal().hide();
-            e.preventDefault();
-            e.stopPropagation();
-            return;
-        }
-
-        const asset = e.target.closest('.asset-item') || e.target.closest('.modal-asset-item');
-        if (asset) {
-            e.preventDefault();
-            e.stopPropagation();
-            openLightbox(asset, false);
-        }
-    });
-
-    async function saveComponentContent(containerEl) {
-        if (!containerEl) return;
-        const componentId = containerEl.dataset.componentId;
-        const clone = containerEl.cloneNode(true);
-        clone.querySelectorAll('[data-text-editable]').forEach(el => {
-            el.removeAttribute('contenteditable');
-            el.removeAttribute('spellcheck');
-            el.removeAttribute('data-text-editable');
-            el.removeAttribute('data-editing-activated');
-        });
-        clone.querySelectorAll('img').forEach(img => {
-            img.removeAttribute('contenteditable');
-            img.removeAttribute('draggable');
-        });
-        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-        const body = `componentId=${encodeURIComponent(componentId)}&content=${encodeURIComponent(clone.innerHTML)}`;
-        
-        await fetch('/Section/UpdateComponentContent', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'RequestVerificationToken': tokenInput.value
-            },
-            body: body
-        });
-    }
-
-    document.getElementById('assets-tab').addEventListener('shown.bs.tab', () => {
-        console.log("Assets tab shown, reloading assets...");
-        loadAssets();
-    });
-
-    // loadAssets(); // Removed from here, called in DOMContentLoaded
 </script>
