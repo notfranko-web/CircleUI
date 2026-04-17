@@ -1,6 +1,20 @@
 @model CircleUI.Core.DTOs.PageDTO
 @{
     Layout = null;
+
+    var project = ViewBag.Project as CircleUI.Core.DTOs.WebsiteProjectDTO;
+
+    var bgColor     = !string.IsNullOrEmpty(project?.BackgroundColor)     ? project.BackgroundColor     : "#ffffff";
+    var bgImage     = !string.IsNullOrEmpty(project?.BackgroundImage)     ? project.BackgroundImage     : null;
+    var primaryText = !string.IsNullOrEmpty(project?.PrimaryTextColor)    ? project.PrimaryTextColor    : "#000000";
+    var secondaryText = !string.IsNullOrEmpty(project?.SecondaryTextColor) ? project.SecondaryTextColor : "#6c757d";
+    var btnColor    = !string.IsNullOrEmpty(project?.ButtonColor)         ? project.ButtonColor         : "#0d6efd";
+    var btnTextColor = !string.IsNullOrEmpty(project?.ButtonTextColor)    ? project.ButtonTextColor     : "#ffffff";
+
+    // Build background CSS as a C# string to avoid Razor encoding issues in <style> blocks
+    var bgCss = bgImage != null
+        ? $"background-color: transparent; background-image: url('{bgImage}'); background-size: cover; background-position: center top; background-repeat: no-repeat; background-attachment: fixed;"
+        : $"background-color: {bgColor};";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -9,44 +23,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@Model.Title – Preview</title>
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    @{
-        var project = (CircleUI.Core.DTOs.WebsiteProjectDTO)ViewBag.Project;
-    }
-    @if (project != null)
-    {
-        <style>
-            :root {
-                --project-bg-color: @project.BackgroundColor;
-                --project-primary-text-color: @project.PrimaryTextColor;
-                --project-secondary-text-color: @project.SecondaryTextColor;
-                --project-button-color: @project.ButtonColor;
-                --project-button-text-color: @project.ButtonTextColor;
-            }
-
-            body {
-                background-color: var(--project-bg-color) !important;
-                color: var(--project-primary-text-color) !important;
-            }
-
-            h1, h2, h3, h4, h5, h6, p, span:not(.badge), div:not(.carousel) {
-                color: var(--project-primary-text-color);
-            }
-
-            .text-muted {
-                color: var(--project-secondary-text-color) !important;
-            }
-
-            .btn-primary,
-            button:not(.carousel-control-prev):not(.carousel-control-next):not(.navbar-toggler):not(.btn-link):not(.btn-close) {
-                background-color: var(--project-button-color) !important;
-                border-color: var(--project-button-color) !important;
-                color: var(--project-button-text-color) !important;
-            }
-        </style>
-    }
     <style>
-        body { padding-top: 48px; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        html {
+            @Html.Raw(bgCss)
+        }
+        body {
+            padding-top: 48px;
+            color: @primaryText;
+            background: transparent;
+        }
+        h1, h2, h3, h4, h5, h6, p, span:not(.badge), div:not(.carousel) {
+            color: @primaryText;
+        }
+        .text-muted {
+            color: @secondaryText !important;
+        }
+        .btn-primary,
+        button:not(.carousel-control-prev):not(.carousel-control-next):not(.navbar-toggler):not(.btn-link):not(.btn-close) {
+            background-color: @btnColor !important;
+            border-color: @btnColor !important;
+            color: @btnTextColor !important;
+        }
         #preview-bar {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -63,7 +65,7 @@
         #preview-bar span { opacity: .6; }
     </style>
 </head>
-<body>
+<body style="@Html.Raw(bgCss)">
     <div id="preview-bar">
         <button onclick="window.close()" class="btn btn-sm btn-outline-light py-0">&#8592; Close Preview</button>
         <span>Previewing: <strong>@Model.Title</strong></span>
@@ -71,7 +73,7 @@
 
     @foreach (var section in Model.SectionDtos)
     {
-        <section class="section-container">
+        <section>
             @foreach (var component in section.ComponentDTOs)
             {
                 @Html.Raw(component.Content)

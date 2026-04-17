@@ -129,6 +129,7 @@ public class WebsiteProjectController : Controller
             SecondaryTextColor = websiteProject.SecondaryTextColor,
             ButtonColor = websiteProject.ButtonColor,
             ButtonTextColor = websiteProject.ButtonTextColor,
+            BackgroundImage = websiteProject.BackgroundImage,
             PageDtos  = websiteProject.Pages,
             ComponentDtos = components,
             ActiveTab = activeTab
@@ -148,7 +149,7 @@ public class WebsiteProjectController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateTheme([FromForm] Guid projectId, [FromForm] string backgroundColor, [FromForm] string primaryTextColor, [FromForm] string secondaryTextColor, [FromForm] string buttonColor, [FromForm] string buttonTextColor)
+    public async Task<IActionResult> UpdateTheme([FromForm] Guid projectId, [FromForm] string backgroundColor, [FromForm] string primaryTextColor, [FromForm] string secondaryTextColor, [FromForm] string buttonColor, [FromForm] string buttonTextColor, [FromForm] string? backgroundImage)
     {
         var project = await _service.GetById(projectId.ToString());
         if (project == null) return NotFound(new { success = false, message = "Project not found" });
@@ -158,6 +159,7 @@ public class WebsiteProjectController : Controller
         project.SecondaryTextColor = secondaryTextColor;
         project.ButtonColor = buttonColor;
         project.ButtonTextColor = buttonTextColor;
+        project.BackgroundImage = backgroundImage;
 
         await _service.Update(project);
 

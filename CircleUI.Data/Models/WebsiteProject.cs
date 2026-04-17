@@ -16,6 +16,7 @@ public class WebsiteProject
     public string SecondaryTextColor { get; set; } = "#6c757d";
     public string ButtonColor { get; set; } = "#0d6efd";
     public string ButtonTextColor { get; set; } = "#ffffff";
+    public string? BackgroundImage { get; set; }
     
     public ICollection<Page> Pages { get; set; } = new List<Page>();
     public ICollection<PublishedVersion> PublishedVersions { get; set; } = new List<PublishedVersion>();

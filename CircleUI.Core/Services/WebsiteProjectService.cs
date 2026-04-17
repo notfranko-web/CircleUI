@@ -85,7 +85,8 @@ public class WebsiteProjectService : IWebsiteProjectService
             PrimaryTextColor = websiteProject.PrimaryTextColor,
             SecondaryTextColor = websiteProject.SecondaryTextColor,
             ButtonColor = websiteProject.ButtonColor,
-            ButtonTextColor = websiteProject.ButtonTextColor
+            ButtonTextColor = websiteProject.ButtonTextColor,
+            BackgroundImage = websiteProject.BackgroundImage
         };
     }
     
@@ -114,6 +115,7 @@ public class WebsiteProjectService : IWebsiteProjectService
             SecondaryTextColor = websiteProject.SecondaryTextColor,
             ButtonColor = websiteProject.ButtonColor,
             ButtonTextColor = websiteProject.ButtonTextColor,
+            BackgroundImage = websiteProject.BackgroundImage,
             Pages = new List<PageDTO>(),
             
         };
@@ -174,6 +176,7 @@ public class WebsiteProjectService : IWebsiteProjectService
         websiteProject.SecondaryTextColor = input.SecondaryTextColor;
         websiteProject.ButtonColor = input.ButtonColor;
         websiteProject.ButtonTextColor = input.ButtonTextColor;
+        websiteProject.BackgroundImage = input.BackgroundImage;
         await _context.SaveChangesAsync();
 
         return new WebsiteProjectDTO()
@@ -188,7 +191,8 @@ public class WebsiteProjectService : IWebsiteProjectService
             PrimaryTextColor = websiteProject.PrimaryTextColor,
             SecondaryTextColor = websiteProject.SecondaryTextColor,
             ButtonColor = websiteProject.ButtonColor,
-            ButtonTextColor = websiteProject.ButtonTextColor
+            ButtonTextColor = websiteProject.ButtonTextColor,
+            BackgroundImage = websiteProject.BackgroundImage
         };
     }
     

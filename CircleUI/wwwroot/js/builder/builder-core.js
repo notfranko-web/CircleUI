@@ -57,6 +57,24 @@ window.builder = {
         if (saveThemeBtn) {
             saveThemeBtn.addEventListener('click', () => this.saveTheme());
         }
+
+        const selectBgBtn = document.getElementById('selectBgImageBtn');
+        if (selectBgBtn) {
+            selectBgBtn.addEventListener('click', () => {
+                this.activeImageElement = 'PROJECT_BACKGROUND';
+                this.getImageSelectModal().show();
+            });
+        }
+
+        const removeBgBtn = document.getElementById('removeBgImageBtn');
+        if (removeBgBtn) {
+            removeBgBtn.addEventListener('click', () => {
+                document.getElementById('backgroundImage').value = '';
+                document.getElementById('bgImagePreview').innerHTML = '<i class="bi bi-image text-muted"></i>';
+                document.documentElement.style.setProperty('--project-bg-image', 'none');
+                document.documentElement.style.setProperty('--project-effective-bg-color', document.getElementById('backgroundColor').value);
+            });
+        }
     },
 
     saveTheme: async function() {
@@ -66,6 +84,7 @@ window.builder = {
         const secondaryTextColor = document.getElementById('secondaryTextColor').value;
         const buttonColor = document.getElementById('buttonColor').value;
         const buttonTextColor = document.getElementById('buttonTextColor').value;
+        const backgroundImage = document.getElementById('backgroundImage').value;
         
         const status = document.getElementById('themeStatus');
         status.classList.remove('d-none', 'text-success', 'text-danger');
@@ -80,6 +99,7 @@ window.builder = {
             formData.append('secondaryTextColor', secondaryTextColor);
             formData.append('buttonColor', buttonColor);
             formData.append('buttonTextColor', buttonTextColor);
+            formData.append('backgroundImage', backgroundImage);
 
             const res = await fetch('/WebsiteProject/UpdateTheme', {
                 method: 'POST',
@@ -101,6 +121,8 @@ window.builder = {
                 document.documentElement.style.setProperty('--project-secondary-text-color', secondaryTextColor);
                 document.documentElement.style.setProperty('--project-button-color', buttonColor);
                 document.documentElement.style.setProperty('--project-button-text-color', buttonTextColor);
+                document.documentElement.style.setProperty('--project-bg-image', backgroundImage ? `url('${backgroundImage}')` : 'none');
+                document.documentElement.style.setProperty('--project-effective-bg-color', backgroundImage ? 'transparent' : backgroundColor);
             } else {
                 status.textContent = 'Error: ' + data.message;
                 status.classList.add('text-danger');

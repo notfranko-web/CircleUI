@@ -93,20 +93,34 @@
                 if (e.target.files.length > 0) b.uploadFile(e.target.files[0], true);
             });
         }
+
     });
-    
+
     document.addEventListener('click', function(e) {
         if (e.target.closest('.remove-component-btn')) return;
 
         const modalAsset = e.target.closest('.modal-asset-item');
-        if (modalAsset && b.activeImageElement) {
-            b.activeImageElement.src = modalAsset.dataset.path;
-            const container = b.activeImageElement.closest('.component-editable');
-            if (container) b.saveComponentContent(container);
-            b.getImageSelectModal().hide();
-            e.preventDefault();
-            e.stopPropagation();
-            return;
+        if (modalAsset) {
+            if (b.activeImageElement === 'PROJECT_BACKGROUND') {
+                const path = modalAsset.dataset.path;
+                document.getElementById('backgroundImage').value = path;
+                document.getElementById('bgImagePreview').innerHTML = `<img src="${path}" style="width: 100%; height: 100%; object-fit: cover;" />`;
+                document.documentElement.style.setProperty('--project-bg-image', `url('${path}')`);
+                document.documentElement.style.setProperty('--project-effective-bg-color', 'transparent');
+                b.getImageSelectModal().hide();
+                b.activeImageElement = null;
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            } else if (b.activeImageElement) {
+                b.activeImageElement.src = modalAsset.dataset.path;
+                const container = b.activeImageElement.closest('.component-editable');
+                if (container) b.saveComponentContent(container);
+                b.getImageSelectModal().hide();
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
         }
 
         const asset = e.target.closest('.asset-item') || e.target.closest('.modal-asset-item');

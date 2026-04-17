@@ -2,39 +2,53 @@
 
 @Html.AntiForgeryToken()
 
+@{
+    var builderBgColor = string.IsNullOrEmpty(Model.BackgroundColor) ? "#ffffff" : Model.BackgroundColor;
+    var builderBgImage = string.IsNullOrEmpty(Model.BackgroundImage) ? null : Model.BackgroundImage;
+    var builderPrimaryText = string.IsNullOrEmpty(Model.PrimaryTextColor) ? "#000000" : Model.PrimaryTextColor;
+    var builderSecondaryText = string.IsNullOrEmpty(Model.SecondaryTextColor) ? "#6c757d" : Model.SecondaryTextColor;
+    var builderBtnColor = string.IsNullOrEmpty(Model.ButtonColor) ? "#0d6efd" : Model.ButtonColor;
+    var builderBtnTextColor = string.IsNullOrEmpty(Model.ButtonTextColor) ? "#ffffff" : Model.ButtonTextColor;
+}
 <style id="dynamic-theme">
     :root {
-        --project-bg-color: @Model.BackgroundColor;
-        --project-primary-text-color: @Model.PrimaryTextColor;
-        --project-secondary-text-color: @Model.SecondaryTextColor;
-        --project-button-color: @Model.ButtonColor;
-        --project-button-text-color: @Model.ButtonTextColor;
+        --project-bg-color: @builderBgColor;
+        --project-bg-image: @(builderBgImage == null ? "none" : $"url('{builderBgImage}')");
+        --project-effective-bg-color: @(builderBgImage == null ? builderBgColor : "transparent");
+        --project-primary-text-color: @builderPrimaryText;
+        --project-secondary-text-color: @builderSecondaryText;
+        --project-button-color: @builderBtnColor;
+        --project-button-text-color: @builderBtnTextColor;
     }
 
-    .tab-pane .section-container {
-        background-color: var(--project-bg-color) !important;
+    .tab-pane .section-drop-zone {
+        background-color: var(--project-effective-bg-color) !important;
+        background-image: var(--project-bg-image) !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
         color: var(--project-primary-text-color) !important;
     }
 
-    .tab-pane .section-container h1, 
-    .tab-pane .section-container h2, 
-    .tab-pane .section-container h3, 
-    .tab-pane .section-container h4, 
-    .tab-pane .section-container h5, 
-    .tab-pane .section-container h6,
-    .tab-pane .section-container p,
-    .tab-pane .section-container span:not(.badge),
-    .tab-pane .section-container div:not(.component-instance):not(.carousel) {
+    .tab-pane .section-drop-zone h1, 
+    .tab-pane .section-drop-zone h2, 
+    .tab-pane .section-drop-zone h3, 
+    .tab-pane .section-drop-zone h4, 
+    .tab-pane .section-drop-zone h5, 
+    .tab-pane .section-drop-zone h6,
+    .tab-pane .section-drop-zone p,
+    .tab-pane .section-drop-zone span:not(.badge),
+    .tab-pane .section-drop-zone div:not(.component-instance):not(.carousel) {
         color: var(--project-primary-text-color);
     }
 
-    .tab-pane .section-container .text-muted {
+    .tab-pane .section-drop-zone .text-muted {
         color: var(--project-secondary-text-color) !important;
     }
 
-    .tab-pane .section-container .btn-primary,
-    .tab-pane .section-container .btn,
-    .tab-pane .section-container button:not(.carousel-control-prev):not(.carousel-control-next):not(.navbar-toggler):not(.btn-link):not(.btn-close):not(.remove-component-btn):not(.collapse-section-btn) {
+    .tab-pane .section-drop-zone .btn-primary,
+    .tab-pane .section-drop-zone .btn,
+    .tab-pane .section-drop-zone button:not(.carousel-control-prev):not(.carousel-control-next):not(.navbar-toggler):not(.btn-link):not(.btn-close):not(.remove-component-btn):not(.collapse-section-btn) {
         background-color: var(--project-button-color) !important;
         border-color: var(--project-button-color) !important;
         color: var(--project-button-text-color) !important;
@@ -128,23 +142,45 @@
                         <input type="hidden" id="themeProjectId" value="@Model.Id" />
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Background Color</label>
-                            <input type="color" class="form-control form-control-color w-100" id="backgroundColor" value="@Model.BackgroundColor" title="Choose background color">
+                            <input type="color" class="form-control form-control-color w-100" id="backgroundColor" value="@builderBgColor" title="Choose background color">
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Primary Text Color</label>
-                            <input type="color" class="form-control form-control-color w-100" id="primaryTextColor" value="@Model.PrimaryTextColor" title="Choose primary text color">
+                            <input type="color" class="form-control form-control-color w-100" id="primaryTextColor" value="@builderPrimaryText" title="Choose primary text color">
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Secondary Text Color</label>
-                            <input type="color" class="form-control form-control-color w-100" id="secondaryTextColor" value="@Model.SecondaryTextColor" title="Choose secondary text color">
+                            <input type="color" class="form-control form-control-color w-100" id="secondaryTextColor" value="@builderSecondaryText" title="Choose secondary text color">
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Button Color</label>
-                            <input type="color" class="form-control form-control-color w-100" id="buttonColor" value="@Model.ButtonColor" title="Choose button color">
+                            <input type="color" class="form-control form-control-color w-100" id="buttonColor" value="@builderBtnColor" title="Choose button color">
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Button Text Color</label>
-                            <input type="color" class="form-control form-control-color w-100" id="buttonTextColor" value="@Model.ButtonTextColor" title="Choose button text color">
+                            <input type="color" class="form-control form-control-color w-100" id="buttonTextColor" value="@builderBtnTextColor" title="Choose button text color">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Background Image</label>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <div id="bgImagePreview" class="border rounded bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; overflow: hidden;">
+                                    @if (!string.IsNullOrEmpty(Model.BackgroundImage))
+                                    {
+                                        <img src="@Model.BackgroundImage" style="width: 100%; height: 100%; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-image text-muted"></i>
+                                    }
+                                </div>
+                                <div class="flex-grow-1">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100" id="selectBgImageBtn">Select Image</button>
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="removeBgImageBtn" title="Remove image">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                            <input type="hidden" id="backgroundImage" value="@Model.BackgroundImage" />
                         </div>
                         <button type="button" class="btn btn-primary btn-sm w-100" id="saveThemeBtn">Save Theme</button>
                     </form>
