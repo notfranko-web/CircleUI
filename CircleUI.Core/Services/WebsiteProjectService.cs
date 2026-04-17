@@ -25,7 +25,12 @@ public class WebsiteProjectService : IWebsiteProjectService
             Description = wp.Description,
             Domain = wp.Domain,
             IsPublished = wp.IsPublished,
-            UserId = wp.UserId
+            UserId = wp.UserId,
+            BackgroundColor = wp.BackgroundColor,
+            PrimaryTextColor = wp.PrimaryTextColor,
+            SecondaryTextColor = wp.SecondaryTextColor,
+            ButtonColor = wp.ButtonColor,
+            ButtonTextColor = wp.ButtonTextColor
         }).ToList();
     }
 
@@ -41,7 +46,12 @@ public class WebsiteProjectService : IWebsiteProjectService
             Description = wp.Description,
             Domain = wp.Domain,
             IsPublished = wp.IsPublished,
-            UserId = wp.UserId
+            UserId = wp.UserId,
+            BackgroundColor = wp.BackgroundColor,
+            PrimaryTextColor = wp.PrimaryTextColor,
+            SecondaryTextColor = wp.SecondaryTextColor,
+            ButtonColor = wp.ButtonColor,
+            ButtonTextColor = wp.ButtonTextColor
         }).ToList();
     }
 
@@ -53,7 +63,12 @@ public class WebsiteProjectService : IWebsiteProjectService
             Description = input.Description,
             Domain = input.Domain,
             IsPublished = input.IsPublished,
-            UserId = input.UserId
+            UserId = input.UserId,
+            BackgroundColor = input.BackgroundColor,
+            PrimaryTextColor = input.PrimaryTextColor,
+            SecondaryTextColor = input.SecondaryTextColor,
+            ButtonColor = input.ButtonColor,
+            ButtonTextColor = input.ButtonTextColor
         };
         await _context.WebsiteProjects.AddAsync(websiteProject);
         await _context.SaveChangesAsync();
@@ -65,7 +80,12 @@ public class WebsiteProjectService : IWebsiteProjectService
             Description = websiteProject.Description,
             Domain = websiteProject.Domain,
             IsPublished = websiteProject.IsPublished,
-            UserId = websiteProject.UserId
+            UserId = websiteProject.UserId,
+            BackgroundColor = websiteProject.BackgroundColor,
+            PrimaryTextColor = websiteProject.PrimaryTextColor,
+            SecondaryTextColor = websiteProject.SecondaryTextColor,
+            ButtonColor = websiteProject.ButtonColor,
+            ButtonTextColor = websiteProject.ButtonTextColor
         };
     }
     
@@ -89,6 +109,11 @@ public class WebsiteProjectService : IWebsiteProjectService
             Domain = websiteProject.Domain,
             IsPublished = websiteProject.IsPublished,
             UserId = websiteProject.UserId,
+            BackgroundColor = websiteProject.BackgroundColor,
+            PrimaryTextColor = websiteProject.PrimaryTextColor,
+            SecondaryTextColor = websiteProject.SecondaryTextColor,
+            ButtonColor = websiteProject.ButtonColor,
+            ButtonTextColor = websiteProject.ButtonTextColor,
             Pages = new List<PageDTO>(),
             
         };
@@ -144,6 +169,11 @@ public class WebsiteProjectService : IWebsiteProjectService
         websiteProject.Domain = input.Domain;
         websiteProject.IsPublished = input.IsPublished;
         websiteProject.UserId = input.UserId;
+        websiteProject.BackgroundColor = input.BackgroundColor;
+        websiteProject.PrimaryTextColor = input.PrimaryTextColor;
+        websiteProject.SecondaryTextColor = input.SecondaryTextColor;
+        websiteProject.ButtonColor = input.ButtonColor;
+        websiteProject.ButtonTextColor = input.ButtonTextColor;
         await _context.SaveChangesAsync();
 
         return new WebsiteProjectDTO()
@@ -153,7 +183,12 @@ public class WebsiteProjectService : IWebsiteProjectService
             Description = websiteProject.Description,
             Domain = websiteProject.Domain,
             IsPublished = websiteProject.IsPublished,
-            UserId = websiteProject.UserId
+            UserId = websiteProject.UserId,
+            BackgroundColor = websiteProject.BackgroundColor,
+            PrimaryTextColor = websiteProject.PrimaryTextColor,
+            SecondaryTextColor = websiteProject.SecondaryTextColor,
+            ButtonColor = websiteProject.ButtonColor,
+            ButtonTextColor = websiteProject.ButtonTextColor
         };
     }
     

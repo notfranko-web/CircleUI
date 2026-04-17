@@ -124,6 +124,11 @@ public class WebsiteProjectController : Controller
             Domain = websiteProject.Domain,
             IsPublished = websiteProject.IsPublished,
             UserId = websiteProject.UserId,
+            BackgroundColor = websiteProject.BackgroundColor,
+            PrimaryTextColor = websiteProject.PrimaryTextColor,
+            SecondaryTextColor = websiteProject.SecondaryTextColor,
+            ButtonColor = websiteProject.ButtonColor,
+            ButtonTextColor = websiteProject.ButtonTextColor,
             PageDtos  = websiteProject.Pages,
             ComponentDtos = components,
             ActiveTab = activeTab
@@ -136,6 +141,26 @@ public class WebsiteProjectController : Controller
         WebsiteProjectDTO websiteProject = await _service.GetById(id);
         var page = websiteProject.Pages.FirstOrDefault(p => p.Id == pageId);
         if (page is null) return NotFound();
+        
+        ViewBag.Project = websiteProject;
         return View(page);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateTheme([FromForm] Guid projectId, [FromForm] string backgroundColor, [FromForm] string primaryTextColor, [FromForm] string secondaryTextColor, [FromForm] string buttonColor, [FromForm] string buttonTextColor)
+    {
+        var project = await _service.GetById(projectId.ToString());
+        if (project == null) return NotFound(new { success = false, message = "Project not found" });
+
+        project.BackgroundColor = backgroundColor;
+        project.PrimaryTextColor = primaryTextColor;
+        project.SecondaryTextColor = secondaryTextColor;
+        project.ButtonColor = buttonColor;
+        project.ButtonTextColor = buttonTextColor;
+
+        await _service.Update(project);
+
+        return Json(new { success = true });
     }
 }

@@ -10,6 +10,41 @@
     <title>@Model.Title – Preview</title>
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @{
+        var project = (CircleUI.Core.DTOs.WebsiteProjectDTO)ViewBag.Project;
+    }
+    @if (project != null)
+    {
+        <style>
+            :root {
+                --project-bg-color: @project.BackgroundColor;
+                --project-primary-text-color: @project.PrimaryTextColor;
+                --project-secondary-text-color: @project.SecondaryTextColor;
+                --project-button-color: @project.ButtonColor;
+                --project-button-text-color: @project.ButtonTextColor;
+            }
+
+            body {
+                background-color: var(--project-bg-color) !important;
+                color: var(--project-primary-text-color) !important;
+            }
+
+            h1, h2, h3, h4, h5, h6, p, span:not(.badge), div:not(.carousel) {
+                color: var(--project-primary-text-color);
+            }
+
+            .text-muted {
+                color: var(--project-secondary-text-color) !important;
+            }
+
+            .btn-primary,
+            button:not(.carousel-control-prev):not(.carousel-control-next):not(.navbar-toggler):not(.btn-link):not(.btn-close) {
+                background-color: var(--project-button-color) !important;
+                border-color: var(--project-button-color) !important;
+                color: var(--project-button-text-color) !important;
+            }
+        </style>
+    }
     <style>
         body { padding-top: 48px; }
         #preview-bar {
@@ -36,7 +71,7 @@
 
     @foreach (var section in Model.SectionDtos)
     {
-        <section>
+        <section class="section-container">
             @foreach (var component in section.ComponentDTOs)
             {
                 @Html.Raw(component.Content)
