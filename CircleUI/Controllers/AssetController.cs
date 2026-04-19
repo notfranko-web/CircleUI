@@ -75,6 +75,14 @@ public class AssetController : Controller
     public async Task<IActionResult> Index()
     {
         var assets = await _service.GetAll();
+        var userIds = assets.Select(a => a.UserId).Distinct().ToList();
+        var userNames = new Dictionary<string, string>();
+        foreach (var uid in userIds)
+        {
+            var user = await _userManager.FindByIdAsync(uid);
+            userNames[uid] = user?.DisplayName ?? user?.UserName ?? uid;
+        }
+        ViewBag.UserNames = userNames;
         return View(assets);
     }
     // CREATE
@@ -144,7 +152,8 @@ public class AssetController : Controller
         if (userId == null) return Unauthorized();
 
         var asset = await _service.GetById(id);
-        if (asset == null || asset.UserId != userId)
+        var isAdmin = User.IsInRole("Admin");
+        if (asset == null || (asset.UserId != userId && !isAdmin))
             return Json(new { success = false, message = "Asset not found or access denied" });
 
         // Delete file from disk
@@ -155,6 +164,6 @@ public class AssetController : Controller
         }
 
         await _service.Delete(id);
-        return Json(new { success = true });
+        return RedirectToAction("Index");
     }
 }
