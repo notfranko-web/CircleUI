@@ -108,24 +108,6 @@
     }, true);
 
     document.addEventListener('click', async e => {
-        const addLinkBtn = e.target.closest('.add-nav-link-btn');
-        if (addLinkBtn) {
-            const instance = addLinkBtn.closest('.component-instance');
-            const containerEl = instance.querySelector('.component-editable');
-            const navList = containerEl.querySelector('ul.navbar-nav');
-            if (!navList) return;
-
-            const li = document.createElement('li');
-            li.className = 'nav-item';
-            li.innerHTML = '<a class="nav-link" href="#">New Link</a>';
-            navList.appendChild(li);
-
-            await b.saveComponentContent(containerEl);
-            delete containerEl.dataset.editingActivated;
-            b.activateComponentEditing(containerEl);
-            return;
-        }
-
         const btn = e.target.closest('.remove-component-btn');
         if (btn) {
             const instance = btn.closest('.component-instance');

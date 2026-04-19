@@ -91,23 +91,12 @@
                 const hdr = document.createElement('div');
                 hdr.className = 'd-flex justify-content-between align-items-center mb-1';
                 hdr.innerHTML = `<span class="badge bg-secondary">${type}</span>`;
-                const btnGroup = document.createElement('div');
-                btnGroup.className = 'd-flex align-items-center gap-1';
-                if (type === 'Navbar') {
-                    const addLinkBtn = document.createElement('button');
-                    addLinkBtn.type = 'button';
-                    addLinkBtn.className = 'btn btn-link text-primary p-0 add-nav-link-btn';
-                    addLinkBtn.title = 'Add nav link';
-                    addLinkBtn.textContent = '+ Link';
-                    btnGroup.appendChild(addLinkBtn);
-                }
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'btn btn-link text-danger p-0 remove-component-btn';
                 removeBtn.title = 'Remove component';
                 removeBtn.textContent = '×';
-                btnGroup.appendChild(removeBtn);
-                hdr.appendChild(btnGroup);
+                hdr.appendChild(removeBtn);
                 el.appendChild(hdr);
 
                 const contentDiv = document.createElement('div');
