@@ -38,7 +38,10 @@
         color: var(--project-primary-text-color) !important;
     }
 
-    .tab-pane .section-drop-zone h1, 
+    /* Force navbar collapse open so nav links are always visible in the builder */
+    .component-editable .collapse.navbar-collapse { display: block !important; }
+
+    .tab-pane .section-drop-zone h1,
     .tab-pane .section-drop-zone h2, 
     .tab-pane .section-drop-zone h3, 
     .tab-pane .section-drop-zone h4, 
@@ -63,7 +66,24 @@
     }
 </style>
 
-<h1>Build Project </h1>
+<div class="d-flex align-items-center justify-content-between mb-2">
+    <h1 class="mb-0">Build Project</h1>
+    <div class="d-flex align-items-center gap-2">
+        @if (Model.IsPublished)
+        {
+            <a href="/sites/@Model.Id" target="_blank" class="btn btn-sm btn-outline-secondary">View Live Site</a>
+            <button id="unpublish-btn" class="btn btn-sm btn-danger"
+                    data-project-id="@Model.Id"
+                    data-action="unpublish">Unpublish</button>
+        }
+        else
+        {
+            <button id="publish-btn" class="btn btn-sm btn-success"
+                    data-project-id="@Model.Id"
+                    data-action="publish">Publish</button>
+        }
+    </div>
+</div>
 <div class="row">
     
     <div class="col-2 border-end">
@@ -331,7 +351,13 @@
                                              data-sc-id="@hc.SectionComponentId">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <span class="badge bg-secondary">@hc.Type</span>
-                                                <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    @if (hc.Type == "Navbar")
+                                                    {
+                                                        <button type="button" class="btn btn-link text-primary p-0 add-nav-link-btn" title="Add nav link">+ Link</button>
+                                                    }
+                                                    <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                                </div>
                                             </div>
                                             <div class="component-editable" data-component-id="@hc.Id">
                                                 @Html.Raw(hc.Content)
@@ -392,7 +418,13 @@
                                                      data-sc-id="@component2.SectionComponentId">
                                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                                         <span class="badge bg-secondary">@component2.Type</span>
-                                                        <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                                        <div class="d-flex align-items-center gap-1">
+                                                            @if (component2.Type == "Navbar")
+                                                            {
+                                                                <button type="button" class="btn btn-link text-primary p-0 add-nav-link-btn" title="Add nav link">+ Link</button>
+                                                            }
+                                                            <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                                        </div>
                                                     </div>
                                                     <div class="component-editable"
                                                          data-component-id="@component2.Id">
@@ -432,7 +464,13 @@
                                              data-sc-id="@fc.SectionComponentId">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <span class="badge bg-secondary">@fc.Type</span>
-                                                <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    @if (fc.Type == "Navbar")
+                                                    {
+                                                        <button type="button" class="btn btn-link text-primary p-0 add-nav-link-btn" title="Add nav link">+ Link</button>
+                                                    }
+                                                    <button type="button" class="btn btn-link text-danger p-0 remove-component-btn" title="Remove component">&times;</button>
+                                                </div>
                                             </div>
                                             <div class="component-editable" data-component-id="@fc.Id">
                                                 @Html.Raw(fc.Content)
@@ -549,7 +587,7 @@
                         <option value="">-- External URL or Custom Path --</option>
                         @foreach (var pageDto in Model.PageDtos)
                         {
-                            <option value="/WebsiteProject/Preview/@Model.Id?pageId=@pageDto.Id">@pageDto.Title (@pageDto.Path)</option>
+                            <option value="@pageDto.Path">@pageDto.Title (@pageDto.Path)</option>
                         }
                     </select>
                 </div>
@@ -657,4 +695,30 @@
         projectId: '@Model.Id',
         activeTab: '@Html.Raw(Model.ActiveTab)'
     });
+
+    // Publish / Unpublish
+    (function () {
+        var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+        function togglePublish(action, btn) {
+            var projectId = btn.dataset.projectId;
+            btn.disabled = true;
+            fetch('/WebsiteProject/' + action + '/' + projectId, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token }
+            })
+            .then(r => r.json())
+            .then(function (data) {
+                if (data.success) location.reload();
+                else btn.disabled = false;
+            })
+            .catch(function () { btn.disabled = false; });
+        }
+
+        var publishBtn = document.getElementById('publish-btn');
+        var unpublishBtn = document.getElementById('unpublish-btn');
+
+        if (publishBtn) publishBtn.addEventListener('click', function () { togglePublish('Publish', this); });
+        if (unpublishBtn) unpublishBtn.addEventListener('click', function () { togglePublish('Unpublish', this); });
+    })();
 </script>

@@ -1,0 +1,128 @@
+@model CircleUI.Core.DTOs.PageDTO
+@{
+    Layout = null;
+
+    var project = ViewBag.Project as CircleUI.Core.DTOs.WebsiteProjectDTO;
+    var projectId = project?.Id?.ToString();
+
+    var bgColor      = !string.IsNullOrEmpty(project?.BackgroundColor)     ? project.BackgroundColor     : "#ffffff";
+    var bgImage      = !string.IsNullOrEmpty(project?.BackgroundImage)     ? project.BackgroundImage     : null;
+    var primaryText  = !string.IsNullOrEmpty(project?.PrimaryTextColor)    ? project.PrimaryTextColor    : "#000000";
+    var secondaryText= !string.IsNullOrEmpty(project?.SecondaryTextColor)  ? project.SecondaryTextColor  : "#6c757d";
+    var btnColor     = !string.IsNullOrEmpty(project?.ButtonColor)         ? project.ButtonColor         : "#0d6efd";
+    var btnTextColor = !string.IsNullOrEmpty(project?.ButtonTextColor)     ? project.ButtonTextColor     : "#ffffff";
+
+    var bgCss = bgImage != null
+        ? $"background-color: transparent; background-image: url('{bgImage}'); background-size: cover; background-position: center top; background-repeat: no-repeat; background-attachment: fixed;"
+        : $"background-color: {bgColor};";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.Title – @project?.Name</title>
+    @if (!string.IsNullOrEmpty(Model.MetaDescription))
+    {
+        <meta name="description" content="@Model.MetaDescription" />
+    }
+    @if (!string.IsNullOrEmpty(Model.MetaKeywords))
+    {
+        <meta name="keywords" content="@Model.MetaKeywords" />
+    }
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        html {
+            @Html.Raw(bgCss)
+        }
+        body {
+            color: @primaryText;
+            background: transparent;
+        }
+        h1, h2, h3, h4, h5, h6, p, span:not(.badge), div:not(.carousel) {
+            color: @primaryText;
+        }
+        .text-muted {
+            color: @secondaryText !important;
+        }
+        .btn-primary,
+        button:not(.carousel-control-prev):not(.carousel-control-next):not(.navbar-toggler):not(.btn-link):not(.btn-close) {
+            background-color: @btnColor !important;
+            border-color: @btnColor !important;
+            color: @btnTextColor !important;
+        }
+    </style>
+</head>
+<body style="@Html.Raw(bgCss)">
+    @if (project?.HeaderSection != null)
+    {
+        <header>
+            @foreach (var hc in project.HeaderSection.ComponentDTOs)
+            {
+                @Html.Raw(hc.Content)
+            }
+        </header>
+    }
+
+    <main>
+        @foreach (var section in Model.SectionDtos)
+        {
+            <section>
+                @foreach (var component in section.ComponentDTOs)
+                {
+                    @Html.Raw(component.Content)
+                }
+            </section>
+        }
+    </main>
+
+    @if (project?.FooterSection != null)
+    {
+        <footer>
+            @foreach (var fc in project.FooterSection.ComponentDTOs)
+            {
+                @Html.Raw(fc.Content)
+            }
+        </footer>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Rewrite internal page links to point to published site routes
+        (function () {
+            var projectId = '@projectId';
+            // Map pageId -> pagePath for old preview-URL hrefs already stored in the DB
+            var pageMap = {
+                @foreach (var p in project.Pages)
+                {
+                    @:  '@p.Id': '@p.Path',
+                }
+            };
+
+            document.querySelectorAll('a[href]').forEach(function (a) {
+                var href = a.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('http') || href.startsWith('//') || href.startsWith('/sites/')) return;
+
+                // Old format: /WebsiteProject/Preview/{id}?pageId={pageId}
+                var previewMatch = href.match(/[?&]pageId=([^&]+)/);
+                if (previewMatch) {
+                    var pagePath = pageMap[previewMatch[1]] || '/';
+                    a.href = '/sites/' + projectId + pagePath;
+                    return;
+                }
+
+                // New format: page path like /about
+                if (href.startsWith('/')) {
+                    a.href = '/sites/' + projectId + href;
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

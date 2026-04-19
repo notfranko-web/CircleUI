@@ -165,6 +165,28 @@ public class WebsiteProjectController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Publish(string id)
+    {
+        var project = await _service.GetById(id);
+        if (project == null) return NotFound();
+        project.IsPublished = true;
+        await _service.Update(project);
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Unpublish(string id)
+    {
+        var project = await _service.GetById(id);
+        if (project == null) return NotFound();
+        project.IsPublished = false;
+        await _service.Update(project);
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateTheme([FromForm] Guid projectId, [FromForm] string backgroundColor, [FromForm] string primaryTextColor, [FromForm] string secondaryTextColor, [FromForm] string buttonColor, [FromForm] string buttonTextColor, [FromForm] string? backgroundImage)
     {
         var project = await _service.GetById(projectId.ToString());
