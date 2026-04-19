@@ -33,6 +33,11 @@ public class RegisterModel : PageModel
     public class InputModel
     {
         [Required]
+        [StringLength(50, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 3)]
+        [Display(Name = "Username")]
+        public string Username { get; set; }
+
+        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
@@ -62,7 +67,7 @@ public class RegisterModel : PageModel
 
         if (ModelState.IsValid)
         {
-            var user = new User { UserName = Input.Email, Email = Input.Email };
+            var user = new User { UserName = Input.Email, Email = Input.Email, DisplayName = Input.Username };
             var result = await _userManager.CreateAsync(user, Input.Password);
 
             if (result.Succeeded)
