@@ -114,15 +114,6 @@ window.builder = {
             if (data.success) {
                 status.textContent = 'Theme saved successfully!';
                 status.classList.add('text-success');
-                
-                // Update CSS variables locally
-                document.documentElement.style.setProperty('--project-bg-color', backgroundColor);
-                document.documentElement.style.setProperty('--project-primary-text-color', primaryTextColor);
-                document.documentElement.style.setProperty('--project-secondary-text-color', secondaryTextColor);
-                document.documentElement.style.setProperty('--project-button-color', buttonColor);
-                document.documentElement.style.setProperty('--project-button-text-color', buttonTextColor);
-                document.documentElement.style.setProperty('--project-bg-image', backgroundImage ? `url('${backgroundImage}')` : 'none');
-                document.documentElement.style.setProperty('--project-effective-bg-color', backgroundImage ? 'transparent' : backgroundColor);
             } else {
                 status.textContent = 'Error: ' + data.message;
                 status.classList.add('text-danger');

@@ -28,39 +28,6 @@
     .page-tab-item .drag-handle { user-select: none; }
     .page-tab-item .rename-page-btn { display: none; }
     .page-tab-item:has(.nav-link.active) .rename-page-btn { display: inline; }
-
-    .tab-pane .section-drop-zone {
-        background-color: var(--project-effective-bg-color) !important;
-        background-image: var(--project-bg-image) !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-repeat: no-repeat !important;
-        color: var(--project-primary-text-color) !important;
-    }
-
-    .tab-pane .section-drop-zone h1,
-    .tab-pane .section-drop-zone h2, 
-    .tab-pane .section-drop-zone h3, 
-    .tab-pane .section-drop-zone h4, 
-    .tab-pane .section-drop-zone h5, 
-    .tab-pane .section-drop-zone h6,
-    .tab-pane .section-drop-zone p,
-    .tab-pane .section-drop-zone span:not(.badge),
-    .tab-pane .section-drop-zone div:not(.component-instance):not(.carousel) {
-        color: var(--project-primary-text-color);
-    }
-
-    .tab-pane .section-drop-zone .text-muted {
-        color: var(--project-secondary-text-color) !important;
-    }
-
-    .tab-pane .section-drop-zone .btn-primary,
-    .tab-pane .section-drop-zone .btn,
-    .tab-pane .section-drop-zone button:not(.carousel-control-prev):not(.carousel-control-next):not(.navbar-toggler):not(.btn-link):not(.btn-close):not(.remove-component-btn):not(.collapse-section-btn) {
-        background-color: var(--project-button-color) !important;
-        border-color: var(--project-button-color) !important;
-        color: var(--project-button-text-color) !important;
-    }
 </style>
 
 <div class="d-flex align-items-center justify-content-between mb-2">
@@ -127,7 +94,7 @@
                                     <div class="accordion-body p-2 d-flex flex-column gap-2">
                                         @foreach (var component in group)
                                         {
-                                            <div class="component-card p-2 border rounded bg-white"
+                                            <div class="component-card p-2 border rounded"
                                                  draggable="true"
                                                  data-component-id="@component.Id"
                                                  style="cursor: grab;">
@@ -334,7 +301,7 @@
                     {
                         <div class="border rounded p-3 mt-2 section-drop-zone global-section"
                              data-section-id="@Model.HeaderSection.Id"
-                             style="border-color: #6f42c1 !important; background: #f8f5ff;">
+                             style="border-color: rgba(139,92,246,.4) !important; background: rgba(139,92,246,.07);">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="fw-semibold"><span class="badge bg-purple me-1" style="background:#6f42c1;">Global</span> Header</span>
                                 <span class="text-muted small">Shared across all pages</span>
@@ -344,7 +311,7 @@
                                 {
                                     @foreach (var hc in Model.HeaderSection.ComponentDTOs)
                                     {
-                                        <div class="border rounded p-2 bg-white small component-instance"
+                                        <div class="border rounded p-2 small component-instance"
                                              data-sc-id="@hc.SectionComponentId">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <span class="badge bg-secondary">@hc.Type</span>
@@ -405,7 +372,7 @@
                                         {
                                             @foreach (var component2 in section1.ComponentDTOs)
                                             {
-                                                <div class="border rounded p-2 bg-white small component-instance"
+                                                <div class="border rounded p-2 small component-instance"
                                                      data-sc-id="@component2.SectionComponentId">
                                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                                         <span class="badge bg-secondary">@component2.Type</span>
@@ -435,7 +402,7 @@
                     {
                         <div class="border rounded p-3 mt-2 section-drop-zone global-section"
                              data-section-id="@Model.FooterSection.Id"
-                             style="border-color: #6f42c1 !important; background: #f8f5ff;">
+                             style="border-color: rgba(139,92,246,.4) !important; background: rgba(139,92,246,.07);">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="fw-semibold"><span class="badge me-1" style="background:#6f42c1;">Global</span> Footer</span>
                                 <span class="text-muted small">Shared across all pages</span>
@@ -445,7 +412,7 @@
                                 {
                                     @foreach (var fc in Model.FooterSection.ComponentDTOs)
                                     {
-                                        <div class="border rounded p-2 bg-white small component-instance"
+                                        <div class="border rounded p-2 small component-instance"
                                              data-sc-id="@fc.SectionComponentId">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <span class="badge bg-secondary">@fc.Type</span>

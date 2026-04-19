@@ -1,25 +1,87 @@
 @model IEnumerable<CircleUI.Core.DTOs.AssetDTO>
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Assets";
     Layout = "_Layout";
+    var userNames = ViewBag.UserNames as Dictionary<string, string> ?? new Dictionary<string, string>();
 }
 
-<a asp-action="Create" class="btn btn-primary mb-3">Create New Asset</a>
-<div>
-@foreach (var asset in Model)
-{
-    <div>
-        <ol>
-            <li>@asset.Id</li>
-            <li>@asset.FileName</li>
-            <li>@asset.MimeType</li>
-            <li>@asset.SizeBytes</li>
-            <li>@asset.StoragePath</li>
-            <li>@asset.UserId</li>
-            <a asp-action="Update" asp-route-id="@asset.Id" class="btn btn-sm btn-warning">Edit</a>
-            <a asp-action="Delete" asp-route-id="@asset.Id" class="btn btn-sm btn-danger">Delete</a>
-        </ol>
-    </div>
-}
+@Html.AntiForgeryToken()
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">Assets</h1>
+    <button class="btn btn-primary" id="uploadBtn">
+        <i class="bi bi-upload me-1"></i> Upload Asset
+    </button>
 </div>
+
+<input type="file" id="assetFileInput" accept="image/*,video/*,audio/*,.pdf,.svg" style="display:none">
+<div id="uploadStatus" class="mb-3" style="display:none"></div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Owner</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var asset in Model)
+        {
+            <tr>
+                <td>@asset.FileName</td>
+                <td><span class="badge bg-secondary">@asset.MimeType</span></td>
+                <td class="text-muted">@(Math.Round(asset.SizeBytes / 1024.0, 1)) KB</td>
+                <td class="text-muted" style="font-size:.8rem">@(userNames.TryGetValue(asset.UserId, out var name) ? name : asset.UserId)</td>
+                <td>
+                    <form asp-action="Delete" asp-route-id="@asset.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+<script>
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('assetFileInput');
+    const status   = document.getElementById('uploadStatus');
+    const token    = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+    uploadBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        status.style.display = '';
+        status.innerHTML = '<span class="text-muted">Uploading…</span>';
+        uploadBtn.disabled = true;
+
+        const form = new FormData();
+        form.append('file', file);
+
+        const res = await fetch('/Asset/Upload', {
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token },
+            body: form
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            location.reload();
+        } else {
+            status.innerHTML = `<span class="text-danger">Upload failed: ${data.message}</span>`;
+            uploadBtn.disabled = false;
+        }
+
+        fileInput.value = '';
+    });
+</script>
+}

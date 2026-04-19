@@ -1,8 +1,169 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<CircleUI.Data.Models.User> SignInManager
+
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="text-center py-4">
+        <h1>Welcome back!</h1>
+        <p class="text-muted mb-4">Head to your projects to keep building.</p>
+        <a asp-controller="WebsiteProject" asp-action="Index" class="btn btn-primary btn-lg px-5">My Projects</a>
+    </div>
+}
+else
+{
+    <style>
+        .hero-section {
+            text-align: center;
+            padding: 4rem 1rem 3rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(139,92,246,.15);
+            border: 1px solid rgba(139,92,246,.3);
+            color: var(--purple-300);
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            padding: .35rem .9rem;
+            border-radius: 99px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 3.25rem);
+            font-weight: 800;
+            letter-spacing: -.5px;
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+            background: linear-gradient(135deg, #fff 30%, var(--purple-300));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.05rem;
+            color: var(--color-text-soft);
+            max-width: 520px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+        }
+
+        .hero-cta .btn {
+            min-width: 160px;
+            padding: .75rem 2rem;
+            font-size: 1rem;
+            border-radius: 12px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .feature-card {
+            background: var(--dark-750);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            text-align: left;
+            transition: border-color .2s, transform .2s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(139,92,246,.4);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(139,92,246,.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--purple-400);
+        }
+
+        .feature-title {
+            font-size: .95rem;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: .4rem;
+        }
+
+        .feature-desc {
+            font-size: .83rem;
+            color: var(--color-muted);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--color-border);
+            margin: 2.5rem 0;
+        }
+    </style>
+
+    <div class="hero-section">
+        <div class="hero-badge">Visual Website Builder</div>
+        <h1 class="hero-title">Build beautiful websites<br>without writing code</h1>
+        <p class="hero-subtitle">
+            CircleUI is a drag-and-drop website builder. Design pages, customise themes,
+            manage assets, and publish your site — all from one place.
+        </p>
+        <div class="hero-cta">
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary">
+                <i class="bi bi-rocket-takeoff me-2"></i>Get started free
+            </a>
+            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-secondary">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Sign in
+            </a>
+        </div>
+
+        <hr class="divider">
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-grid-1x2"></i></div>
+                <div class="feature-title">Drag &amp; Drop Builder</div>
+                <p class="feature-desc">Arrange pre-built components onto your pages with a simple drag-and-drop interface.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-palette2"></i></div>
+                <div class="feature-title">Theme Customisation</div>
+                <p class="feature-desc">Pick your colours, fonts, and backgrounds to match your brand in seconds.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-images"></i></div>
+                <div class="feature-title">Asset Manager</div>
+                <p class="feature-desc">Upload and manage your images and media, ready to drop into any section.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="bi bi-globe2"></i></div>
+                <div class="feature-title">One-click Publish</div>
+                <p class="feature-desc">Publish your site instantly and share it with the world via a live URL.</p>
+            </div>
+        </div>
+    </div>
+}

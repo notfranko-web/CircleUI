@@ -27,13 +27,18 @@
         </div>
     </div>
 </div>
+@Html.AntiForgeryToken()
+<input type="file" id="adminAssetFileInput" accept="image/*,video/*,audio/*,.pdf,.svg" style="display:none">
 
 <div class="d-flex gap-2 mb-4">
     <a asp-controller="Component" asp-action="Index" class="btn btn-primary">Manage Components</a>
     <a asp-controller="Asset" asp-action="Index" class="btn btn-primary">Manage Assets</a>
     <a asp-controller="Component" asp-action="Create" class="btn btn-secondary">New Component</a>
-    <a asp-controller="Asset" asp-action="Create" class="btn btn-secondary">New Asset</a>
+    <button type="button" class="btn btn-secondary" id="adminUploadBtn">
+        <i class="bi bi-upload me-1"></i> Upload Asset
+    </button>
 </div>
+<div id="adminUploadStatus" class="mb-3" style="display:none"></div>
 
 <h2>User Management</h2>
 
@@ -89,3 +94,42 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+<script>
+    const adminUploadBtn   = document.getElementById('adminUploadBtn');
+    const adminFileInput   = document.getElementById('adminAssetFileInput');
+    const adminStatus      = document.getElementById('adminUploadStatus');
+    const token            = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+    adminUploadBtn.addEventListener('click', () => adminFileInput.click());
+
+    adminFileInput.addEventListener('change', async () => {
+        const file = adminFileInput.files[0];
+        if (!file) return;
+
+        adminStatus.style.display = '';
+        adminStatus.innerHTML = '<span class="text-muted">Uploading…</span>';
+        adminUploadBtn.disabled = true;
+
+        const form = new FormData();
+        form.append('file', file);
+
+        const res = await fetch('/Asset/Upload', {
+            method: 'POST',
+            headers: { 'RequestVerificationToken': token },
+            body: form
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            adminStatus.innerHTML = '<span class="text-success">Upload successful!</span>';
+        } else {
+            adminStatus.innerHTML = `<span class="text-danger">Upload failed: ${data.message}</span>`;
+        }
+
+        adminUploadBtn.disabled = false;
+        adminFileInput.value = '';
+    });
+</script>
+}
