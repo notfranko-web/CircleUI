@@ -162,7 +162,7 @@ public class WebsiteProjectService : IWebsiteProjectService
             Pages = new List<PageDTO>(),
         };
 
-        foreach (var page in websiteProject.Pages.OrderBy(p => p.CreatedAt))
+        foreach (var page in websiteProject.Pages.OrderBy(p => p.Order).ThenBy(p => p.CreatedAt))
         {
             var dto = new PageDTO()
             {
@@ -244,6 +244,92 @@ public class WebsiteProjectService : IWebsiteProjectService
         var websiteProject = await _context.WebsiteProjects.FirstOrDefaultAsync(w => w.Id == guidId);
         _context.WebsiteProjects.Remove(websiteProject);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<WebsiteProjectDTO> Duplicate(string projectId, string userId)
+    {
+        Guid guidId = new Guid(projectId);
+        var original = await _context.WebsiteProjects
+            .Include(w => w.Pages)
+                .ThenInclude(p => p.PageSections)
+                .ThenInclude(ps => ps.Section)
+                .ThenInclude(s => s.SectionComponents)
+                .ThenInclude(sc => sc.Component)
+            .Include(w => w.HeaderSection)
+                .ThenInclude(s => s.SectionComponents)
+                .ThenInclude(sc => sc.Component)
+            .Include(w => w.FooterSection)
+                .ThenInclude(s => s.SectionComponents)
+                .ThenInclude(sc => sc.Component)
+            .FirstOrDefaultAsync(w => w.Id == guidId);
+
+        if (original == null) throw new Exception("Project not found");
+
+        Section CopySection(Section src)
+        {
+            var newSection = new Section { Name = src.Name, HTMLId = src.HTMLId, CSSClass = src.CSSClass };
+            foreach (var sc in src.SectionComponents.OrderBy(x => x.Order))
+            {
+                var newComponent = new Component
+                {
+                    Type = sc.Component.Type,
+                    Category = sc.Component.Category,
+                    Content = sc.Component.Content,
+                    Layout = sc.Component.Layout,
+                    IsTemplate = false
+                };
+                newSection.SectionComponents.Add(new SectionComponent
+                {
+                    Component = newComponent,
+                    Order = sc.Order
+                });
+            }
+            return newSection;
+        }
+
+        var newHeader = original.HeaderSection != null ? CopySection(original.HeaderSection) : new Section { Name = "Global Header" };
+        var newFooter = original.FooterSection != null ? CopySection(original.FooterSection) : new Section { Name = "Global Footer" };
+        _context.Sections.AddRange(newHeader, newFooter);
+
+        var copy = new WebsiteProject
+        {
+            Name = original.Name + " (Copy)",
+            Description = original.Description,
+            Domain = string.Empty,
+            IsPublished = false,
+            UserId = userId,
+            BackgroundColor = original.BackgroundColor,
+            PrimaryTextColor = original.PrimaryTextColor,
+            SecondaryTextColor = original.SecondaryTextColor,
+            ButtonColor = original.ButtonColor,
+            ButtonTextColor = original.ButtonTextColor,
+            BackgroundImage = original.BackgroundImage,
+            HeaderSection = newHeader,
+            FooterSection = newFooter
+        };
+
+        foreach (var page in original.Pages.OrderBy(p => p.CreatedAt))
+        {
+            var newPage = new Page
+            {
+                Title = page.Title,
+                Path = page.Path,
+                MetaDescription = page.MetaDescription,
+                MetaKeywords = page.MetaKeywords
+            };
+            int order = 0;
+            foreach (var ps in page.PageSections.OrderBy(ps => ps.Order))
+            {
+                var newSection = CopySection(ps.Section);
+                newPage.PageSections.Add(new PageSection { Section = newSection, Order = order++ });
+            }
+            copy.Pages.Add(newPage);
+        }
+
+        await _context.WebsiteProjects.AddAsync(copy);
+        await _context.SaveChangesAsync();
+
+        return await GetById(copy.Id.ToString());
     }
 
     private SectionDTO MapSection(Section section)

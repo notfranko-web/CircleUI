@@ -1,44 +1,41 @@
 @model CircleUI.ViewModels.WebsiteProject.WebsiteProjectUpdateViewModel
 
 @{
-    ViewData["Title"] = "Edit Website Project";
+    ViewData["Title"] = "Edit Project";
+    Layout = "_Layout";
 }
 
-<h1>Edit Website Project</h1>
+<h1>Edit Project</h1>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="UserId" />
+            <input type="hidden" asp-for="Description" />
 
-    <div class="form-group mb-3">
-        <label asp-for="Name" class="form-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-semibold"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Domain" class="form-label fw-semibold"></label>
+                <input asp-for="Domain" class="form-control" placeholder="e.g. mysite.com" />
+                <span asp-validation-for="Domain" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="IsPublished" class="form-check-input" type="checkbox" />
+                <label asp-for="IsPublished" class="form-check-label">Published</label>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="Description" class="form-label"></label>
-        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="Domain" class="form-label"></label>
-        <input asp-for="Domain" class="form-control" />
-        <span asp-validation-for="Domain" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3 form-check">
-        <input asp-for="IsPublished" class="form-check-input" type="checkbox" />
-        <label asp-for="IsPublished" class="form-check-label"></label>
-        <span asp-validation-for="IsPublished" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="UserId" class="form-label"></label>
-        <input asp-for="UserId" class="form-control" />
-        <span asp-validation-for="UserId" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+</div>

@@ -12,4 +12,5 @@ public interface IWebsiteProjectService
     public Task<WebsiteProjectDTO> Update(WebsiteProjectDTO websiteProject);
     public Task Delete(string id);
     public Task<WebsiteProjectDTO> EnsureHeaderFooter(string projectId);
+    public Task<WebsiteProjectDTO> Duplicate(string projectId, string userId);
 }

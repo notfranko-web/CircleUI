@@ -57,12 +57,13 @@ public class WebsiteProjectController : Controller
         return RedirectToAction("Index");
     }
     
-    // UPDATE
-    public async Task<IActionResult> Update(string id)
+    // EDIT
+    public async Task<IActionResult> Edit(string id)
     {
         WebsiteProjectDTO existing = await _service.GetById(id);
         WebsiteProjectUpdateViewModel model = new WebsiteProjectUpdateViewModel()
         {
+            Id = existing.Id ?? Guid.Empty,
             Name = existing.Name,
             Description = existing.Description,
             Domain = existing.Domain,
@@ -73,8 +74,11 @@ public class WebsiteProjectController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Update(WebsiteProjectUpdateViewModel input)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(WebsiteProjectUpdateViewModel input)
     {
+        if (!ModelState.IsValid) return View(input);
+
         WebsiteProjectDTO websiteProject = new WebsiteProjectDTO()
         {
             Id = input.Id,
@@ -84,11 +88,21 @@ public class WebsiteProjectController : Controller
             IsPublished = input.IsPublished,
             UserId = input.UserId
         };
-        ; 
         await _service.Update(websiteProject);
         return RedirectToAction("Index");
     }
     
+    // DUPLICATE
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Duplicate(string id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId is null) return Unauthorized();
+        await _service.Duplicate(id, userId);
+        return RedirectToAction("Index");
+    }
+
     // DELETE
     public async Task<IActionResult> Delete(string id)
     {

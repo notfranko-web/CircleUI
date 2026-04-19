@@ -106,6 +106,57 @@ public class SectionController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DuplicatePage(Guid pageId, Guid projectId)
+    {
+        var page = await _context.Pages
+            .Include(p => p.PageSections)
+                .ThenInclude(ps => ps.Section)
+                .ThenInclude(s => s.SectionComponents)
+                .ThenInclude(sc => sc.Component)
+            .FirstOrDefaultAsync(p => p.Id == pageId);
+
+        if (page == null) return NotFound();
+
+        var newPage = new Page
+        {
+            Title = page.Title + " (Copy)",
+            Path = page.Path + "-copy",
+            MetaDescription = page.MetaDescription,
+            MetaKeywords = page.MetaKeywords,
+            ProjectId = projectId
+        };
+
+        foreach (var ps in page.PageSections.OrderBy(ps => ps.Order))
+        {
+            var newSection = new Section
+            {
+                Name = ps.Section.Name,
+                HTMLId = ps.Section.HTMLId,
+                CSSClass = ps.Section.CSSClass
+            };
+            foreach (var sc in ps.Section.SectionComponents.OrderBy(x => x.Order))
+            {
+                var newComponent = new Component
+                {
+                    Type = sc.Component.Type,
+                    Category = sc.Component.Category,
+                    Content = sc.Component.Content,
+                    Layout = sc.Component.Layout,
+                    IsTemplate = false
+                };
+                newSection.SectionComponents.Add(new SectionComponent { Component = newComponent, Order = sc.Order });
+            }
+            newPage.PageSections.Add(new PageSection { Section = newSection, Order = ps.Order });
+        }
+
+        _context.Pages.Add(newPage);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Builder", "WebsiteProject", new { id = projectId, activeTab = $"pane-{newPage.Id}" });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddToPage(Guid pageId, Guid projectId, string name = "New Section")
     {
         var order = await _context.PageSections.CountAsync(ps => ps.PageId == pageId);

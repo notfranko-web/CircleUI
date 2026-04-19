@@ -4,16 +4,19 @@ using CircleUI.Core.Services;
 using CircleUI.Data;
 using CircleUI.ViewModels.Page;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CircleUI.Controllers;
 
 public class PageController : Controller
 {
     private readonly IPageService _service;
+    private readonly ApplicationDbContext _context;
 
     public PageController(ApplicationDbContext context)
     {
         _service = new PageService(context);
+        _context = context;
     }
     
     // GET
@@ -81,6 +84,33 @@ public class PageController : Controller
             TempData["PageError"] = ex.Message;
         }
         return RedirectToAction("Builder", "WebsiteProject", new { id = projectId, activeTab = "home" });
+    }
+
+    // RENAME (AJAX)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Rename(Guid pageId, Guid projectId, string title)
+    {
+        var page = await _context.Pages.FindAsync(pageId);
+        if (page == null) return Json(new { success = false });
+        page.Title = title.Trim();
+        await _context.SaveChangesAsync();
+        return Json(new { success = true, title = page.Title });
+    }
+
+    // REORDER (AJAX)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Reorder(Guid projectId, [FromBody] List<Guid> pageIds)
+    {
+        var pages = await _context.Pages.Where(p => p.ProjectId == projectId).ToListAsync();
+        for (int i = 0; i < pageIds.Count; i++)
+        {
+            var page = pages.FirstOrDefault(p => p.Id == pageIds[i]);
+            if (page != null) page.Order = i;
+        }
+        await _context.SaveChangesAsync();
+        return Json(new { success = true });
     }
 
     // UPDATE

@@ -30,14 +30,15 @@ public class PageService : IPageService
 
     public async Task<PageDTO> Create(PageDTO pages)
     {
+        var order = await _context.Pages.CountAsync(p => p.ProjectId == pages.ProjectId);
         var page = new Page()
         {
             Title = pages.Title,
             Path = pages.Path,
             MetaDescription = pages.MetaDescription,
             MetaKeywords = pages.MetaKeywords,
-            ProjectId = pages.ProjectId
-
+            ProjectId = pages.ProjectId,
+            Order = order
         };
         await _context.Pages.AddAsync(page);
         try
