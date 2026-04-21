@@ -8,3 +8,5 @@ CircleUI.Core/bin/
 *.DotSettings.user
 global.json
 CircleUI/wwwroot/uploads/*
+CircleUI.Tests/obj/
+CircleUI.Tests/bin/
